@@ -2,6 +2,7 @@
 
 # Directory to watch (default: current directory)
 WATCH_DIR=${1:-$(pwd)}
+CLIENT_ARGS="127.0.0.1:12345 admin admin"
 
 echo "Watching for .java file changes in: $WATCH_DIR"
 
@@ -16,22 +17,21 @@ restart_server_client() {
         return
     fi
 
-    echo "Killing existing Java processes..."
     pkill -f "java"  # Kills any running Java processes
 
     echo "Starting Server..."
     java Server &  # Run Server in the background
 
     # Give the server a short time to start (adjust if necessary)
-    sleep 2  
+    sleep 1
 
     echo "Starting Client..."
-    java Client 127.0.0.1:12345 &  # Run Client in the background
+    java Client $CLIENT_ARGS # Run Client in the background
 
-    echo "Server and Client are running simultaneously!"
 }
 
 # Watch only for .java changes, ignoring .class files
-fswatch -o --event Updated --event Created --event Renamed --exclude ".*\\.class$" "$WATCH_DIR" | while read change; do
+fswatch -o --event Updated --event Created --event Renamed --exclude ".*\\.class$" "$WATCH_DIR" | while read -r change; do
+    sleep 0.5  # Short delay to group events
     restart_server_client
 done

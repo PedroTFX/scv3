@@ -1,48 +1,64 @@
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
-
 
 public class Server {
-
-    private static int port = 12345;
+    private static final int PORT = 12345;
 
     public static void main(String[] args) {
-        System.err.println("Hello,server !");
-
-        // default port
-        if(args.length == 1){
-            port = Integer.parseInt(args[0]);
-        }
+        int port = args.length > 0 ? Integer.parseInt(args[0]) : PORT;
         server(port);
-
     }
 
     public static void server(int port){
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server is listening on port " + port);
 
-        try {
-            // Create a server socket to listen for incoming client connections
-            ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Server is waiting for clients on port " + port);
-
-            // Accept a client connection
-            Socket clientSocket = serverSocket.accept();
-            System.out.println("Client connected: " + clientSocket.getInetAddress());
-
-            // Set up input and output streams to communicate with the client
-            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
-
-            // Read the message from the client and send a response
-            String clientMessage = input.readLine();
-            System.out.println("Received from client: " + clientMessage);
-            output.println("Hello from Server! You said: " + clientMessage);
-
-            // Close the connection
-            clientSocket.close();
-            serverSocket.close();
+            while (true) {
+                System.out.println("Waiting for a new client...");
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("New client connected");
+                
+                ClientHandler clientHandler = new ClientHandler(clientSocket);
+                new Thread(clientHandler).start();
+            }
         } catch (IOException e) {
-            System.out.println("Server error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
+
+class ClientHandler implements Runnable {
+    private Socket clientSocket;
+
+    public ClientHandler(Socket socket) {
+        this.clientSocket = socket;
+    }
+
+    @Override
+    public void run() {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+
+            String user_password = in.readLine();
+            String[] user_pass = user_password.split(" ");
+            out.println(Authentication.auth(user_pass[0], user_pass[1]));
+            out.println("Welcome to the server, " + user_pass[0] + "!");
+
+            String message;
+            while ((message = in.readLine()) != null) {
+                System.out.println("Received: " + message);
+                out.println("Echo: " + message);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Client disconnected");
+        }
+    }
+}
+

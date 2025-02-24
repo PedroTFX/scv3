@@ -11,9 +11,8 @@ public class Client {
 
     public static void main(String[] args) {
 
-        System.out.println(args[0]);
-        if (args.length != 1) {
-            System.err.println("Usage: java Client <host>:<port>");
+        if (args.length != 3) {
+            System.err.println("Usage: java Client <host>:<port> <username> <password>");
             System.exit(1);
         }
 
@@ -21,14 +20,13 @@ public class Client {
         // and port 12345 to connect to the server
         String host = args[0].split(":")[0];
         int port = Integer.parseInt(args[0].split(":")[1]);
-
-        Authentication authentication = new Authentication("admin", "admin");
+        String username = args[1];
+        String password = args[2];
         
-
-        client(host, port);
+        client(host, port, username, password);
     }
 
-    public static void client(String host, int port) {
+    public static void client(String host, int port,  String username, String password) {
 
         try {
             // Connect to the server
@@ -39,12 +37,22 @@ public class Client {
             BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
 
-            // Send a message to the server
-            output.println("Hello from Client!");
+            // Send a user and pass to the server
+            output.println(username + " " + password);
 
-            // Read the server's response
-            String serverResponse = input.readLine();
-            System.out.println("Server says: " + serverResponse);
+            // Read the server's authentication response
+            String server_response = input.readLine();
+            System.out.println("Server says: " + server_response);
+            if(!server_response.equals("OK-AUTHENTICATED") && !server_response.equals("OK-NEW-USER")){
+                System.out.println("Authentication failed");
+                socket.close();
+                return;
+            }
+
+            
+
+
+            
 
             // Close the connection
             socket.close();

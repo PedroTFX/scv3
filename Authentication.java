@@ -8,22 +8,24 @@ import java.util.Scanner;
 
 class Authentication {
 
-    public Authentication(String username, String password) {
+    private String username;
+
+    public static String auth(String username, String password) {
         if(!existsUser(username)){
             if(registerUserInFile(username, password)){
-                System.out.println("OK-NEW-USER");
+                return "OK-NEW-USER";
             }
         }else{
-            if(authenticate(username, password)){
-                System.out.println("OK-AUTHENTICATED");
+            if(authenticateUser(username, password)){
+                return "OK-AUTHENTICATED";
             }else{
-                System.out.println("WRONG-PWD");
+                return "WRONG-PWD";
             }
         }
-    
+        return "ERROR";
     }
     
-    public static boolean authenticate(String username, String password) {
+    public static boolean authenticateUser(String username, String password) {
         try {
             File file = new File("users.txt");
             Scanner scanner = new Scanner(file);
@@ -75,8 +77,29 @@ class Authentication {
         return false;
     }
 
+    // remove user from users file
     public static boolean removeUser(String username){
-        
+        try {
+            File file = new File("users.txt");
+            File tempFile = new File("temp.txt");
+            Scanner scanner = new Scanner(file);
+            PrintWriter printWriter = new PrintWriter(tempFile);
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] part = line.split(" <///> ");
+                if (!part[0].equals(username)) {
+                    printWriter.println(line);
+                }
+            }
+            scanner.close();
+            printWriter.close();
+            file.delete();
+            tempFile.renameTo(file);
+            return true;
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + e.getMessage());
+        }
+        return false;
 
 
 
