@@ -1,8 +1,16 @@
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
 class Menu{
 
-    public Menu(BufferedReader input, PrintWriter output, String username, String arguments){
-        BufferedReader input = input;
-        PrintWriter output = output;
+    public static BufferedReader input;
+    public static PrintWriter output;
+
+    public static boolean menu(BufferedReader in, PrintWriter out, String username) throws IOException{
+        input = in;
+        output = out;
 
         System.out.println("• CREATE <ws> # Criar um novo workspace - utilizador é Owner. ");
         System.out.println("• ADD <user1> <ws> # Adicionar utilizador <user1> ao workspace <ws>. A operação ADD só funciona se o utilizador for o Owner do workspace <ws>. ");
@@ -15,9 +23,10 @@ class Menu{
 
 
         while(true){
-            String command = input.readLine();
-            
-            switch(parts[0]){
+            String command = new Scanner(System.in).nextLine();
+            String commandName = command.split(" ")[0];
+            String arguments = command.substring(command.indexOf(" ") + 1);
+            switch(commandName){
                 case "CREATE":
                     create(username, arguments);
                     break;
@@ -40,12 +49,13 @@ class Menu{
                     ls(username, arguments);
                     break;
                 default:
+                    System.out.println(commandName);
                     System.out.println("Command not found");
             }
         }
     }
 
-    public void create(String username, String arguments){
+    public static void create(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         if(parts.length != 1){
             System.out.println("Invalid number of arguments");
@@ -55,7 +65,7 @@ class Menu{
         System.out.println(input.readLine());
     }
 
-    public void add(String username, String arguments){
+    public static void add(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         if(parts.length != 2){
             System.out.println("Invalid number of arguments");
@@ -65,7 +75,7 @@ class Menu{
         System.out.println(input.readLine());
     }
 
-    public void up(String username, String arguments){
+    public static void up(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         if(parts.length < 2){
             System.out.println("Invalid number of arguments");
@@ -75,7 +85,7 @@ class Menu{
         System.out.println(input.readLine());
     }
 
-    public void dw(String username, String arguments){
+    public static void dw(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         if(parts.length < 2){
             System.out.println("Invalid number of arguments");
@@ -85,7 +95,7 @@ class Menu{
         System.out.println(input.readLine());
     }
 
-    public void rm(String username, String arguments){
+    public static void rm(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         if(parts.length < 2){
             System.out.println("Invalid number of arguments");
@@ -95,12 +105,12 @@ class Menu{
         System.out.println(input.readLine());
     }
 
-    public void lw(){
+    public static void lw()  throws IOException{
         output.println("LW");
         System.out.println(input.readLine());
     }
 
-    public void ls(String username, String arguments){
+    public static void ls(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         if(parts.length != 1){
             System.out.println("Invalid number of arguments");

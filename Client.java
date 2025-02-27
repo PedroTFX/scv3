@@ -50,9 +50,13 @@ public class Client {
             }
 
             
-
-
             
+            // Menu loop
+            if(Menu.menu(input, output, username)){
+                System.out.println("Logged out");
+            } else {
+                System.out.println("Error logging out");
+            }
 
             // Close the connection
             socket.close();

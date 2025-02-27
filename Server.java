@@ -42,13 +42,16 @@ class ClientHandler implements Runnable {
             String user_password = in.readLine();
             String[] user_pass = user_password.split(" ");
             out.println(Authentication.auth(user_pass[0], user_pass[1]));
-            out.println("Welcome to the server, " + user_pass[0] + "!");
 
             String message;
+            // System.out.println("waiting for message");
+            // System.out.println(in.readLine());
             while ((message = in.readLine()) != null) {
                 System.out.println("Received: " + message);
                 out.println("Echo: " + message);
             }
+
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
