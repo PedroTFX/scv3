@@ -47,8 +47,8 @@ class ClientHandler implements Runnable {
             // System.out.println("waiting for message");
             // System.out.println(in.readLine());
             while ((message = in.readLine()) != null) {
-                System.out.println("Received: " + message);
-                out.println("Echo: " + message);
+                System.out.println("Message received: " + message);
+                OperationExecutioner.execute(message, out);
             }
 
 

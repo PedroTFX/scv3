@@ -39,8 +39,7 @@ class t_authentication{
 
     public static void test_workspace_creation(){
         Workspaces ws = new Workspaces();
-        assert ws.create("workspace1", "admin") == true;
-        assert ws.create("workspace1", "admin") == false;
+        
     }
 
     public static void main(String[] args){

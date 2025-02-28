@@ -61,7 +61,7 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("CREATE " + username + " " + arguments);
+        output.println("CREATE" + " " + arguments + " " + username);
         System.out.println(input.readLine());
     }
 
@@ -71,7 +71,7 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("ADD " + username + " " + arguments);
+        output.println("ADD" + " " + arguments + " " + username);
         System.out.println(input.readLine());
     }
 
@@ -81,7 +81,7 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("UP " + username + " " + arguments);
+        output.println("UP" + " " + arguments + " " + username);
         System.out.println(input.readLine());
     }
 
@@ -91,7 +91,7 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("DW " + username + " " + arguments);
+        output.println("DW" + " " + arguments + " " + username);
         System.out.println(input.readLine());
     }
 
@@ -101,7 +101,7 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("RM " + username + " " + arguments);
+        output.println("RM" + " " + arguments + " " + username);
         System.out.println(input.readLine());
     }
 
@@ -116,7 +116,7 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("LS " + username + " " + arguments);
+        output.println("LS" + " " + arguments + " " + username);
         System.out.println(input.readLine());
     }
 
