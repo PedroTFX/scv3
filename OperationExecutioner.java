@@ -1,4 +1,8 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -9,10 +13,13 @@ import java.io.PrintWriter;
 public class OperationExecutioner {
 
     public static PrintWriter output;
+    public static BufferedReader input;
 
-    public static void execute(String operation, PrintWriter out) throws IOException {
+
+    public static void execute(String operation, PrintWriter out, BufferedReader in) throws IOException {
         
         output = out;
+        input = in;
         String operationCommand = operation.split(" ")[0];
         System.out.println("Operation: " + operation);
 
@@ -78,14 +85,35 @@ public class OperationExecutioner {
 
     // UP <ws> <file1> ... <filen> # Adicionar ficheiros ao workspace.
     public static void up(String arguments) throws IOException {
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output);
         String[] parts = arguments.split(" ");
         if (parts.length < 1) {
             System.out.println("Invalid number of arguments");
             return;
         }
-        String username = arguments.split(" ")[arguments.split(" ").length - 1];
 
-        output.println("UP " + username + " " + arguments);
+        // arguments: UP admin new_room users.txt
+        String user = parts[1];
+        String workspace = parts[2];
+
+        String file_path = Workspaces.findWorkspace(workspace);
+        if (file_path.equals("")) {
+            output.println("NOWS");
+            return;
+        }
+        if (!file_path.contains(user)) {
+            output.println("NOPERMS");
+            return;
+        }
+
+
+        System.out.println("Number of files: " + (parts.length - 3));
+
+        for (int i = 3; i < parts.length; i++) {
+            fileCoordenator.receive_file(file_path);
+        }
+
+        // output.println("UP " + user + " " + arguments);
     }
 
 
@@ -124,8 +152,8 @@ public class OperationExecutioner {
     //  LS <ws> # Lista os ficheiros dentro de um workspace.
     public static void ls(String arguments) throws IOException {
         String username = arguments.split(" ")[arguments.split(" ").length - 1];
-
-        output.println(Workspaces.getAllFilesNames(username, arguments));
+        String workspace = arguments.split(" ")[1];
+        output.println(Workspaces.getAllFilesNames(username, workspace));
     }
 
 }

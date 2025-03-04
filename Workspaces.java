@@ -103,6 +103,7 @@ class Workspaces{
 
 
 
+
     // public boolean isOwner(String workspaceName, String Owner){
     //     File file = new File("workspaces/" + workspaceName +":"+ Owner + ">" + Owner);
     //     return file.exists();
@@ -130,7 +131,6 @@ class Workspaces{
         System.out.println(ws.hasCollaborator(fileName, "user1")); // true
         System.out.println(ws.addCollaborator("admin", "user1", "workspace1")); // OK
         System.out.println(ws.addCollaborator("admin", "user1", "workspace1")); // OK
-
 
         System.out.println(ws.getAllWorkspaces());                          // workspace1:admin>admin,user
         System.out.println(ws.getAllFilesNames("admin", "workspace1"));     // EMPTY

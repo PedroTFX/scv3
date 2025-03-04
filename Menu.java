@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -81,8 +82,21 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("UP" + " " + arguments + " " + username);
-        System.out.println(input.readLine());
+
+        output.println("UP " + username + " " + arguments);
+
+        System.out.println("arguments :" + arguments);
+        
+        // System.out.println("Number of files: " + (parts.length - 1));
+        
+        
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output);
+
+        for(int i = 1; i < parts.length; i++){
+            fileCoordenator.send_file(parts[i]);
+        }
+
+
     }
 
     public static void dw(String username, String arguments) throws IOException{
