@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class Client {
@@ -36,6 +38,8 @@ public class Client {
             // Set up input and output streams to communicate with the server
             BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+            InputStream inputStream = socket.getInputStream();
+            OutputStream outputStream = socket.getOutputStream();
 
             // Send a user and pass to the server
             output.println(username + " " + password);
@@ -52,7 +56,7 @@ public class Client {
             
             
             // Menu loop
-            if(Menu.menu(input, output, username)){
+            if(Menu.menu(input, output, inputStream, outputStream, username)){
                 System.out.println("Logged out");
             } else {
                 System.out.println("Error logging out");

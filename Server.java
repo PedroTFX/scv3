@@ -37,7 +37,9 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+             InputStream inStream = clientSocket.getInputStream();
+             OutputStream outStream = clientSocket.getOutputStream()) {
 
             String user_password = in.readLine();
             String[] user_pass = user_password.split(" ");
@@ -48,7 +50,7 @@ class ClientHandler implements Runnable {
             // System.out.println(in.readLine());
             while ((message = in.readLine()) != null) {
                 System.out.println("Message received: " + message);
-                OperationExecutioner.execute(message, out, in);
+                OperationExecutioner.execute(message, out, in, inStream, outStream);
             }
 
 

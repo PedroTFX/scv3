@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 
@@ -14,12 +16,16 @@ public class OperationExecutioner {
 
     public static PrintWriter output;
     public static BufferedReader input;
+    public static InputStream inStream;
+    public static OutputStream outStream;
 
 
-    public static void execute(String operation, PrintWriter out, BufferedReader in) throws IOException {
+    public static void execute(String operation, PrintWriter out, BufferedReader in, InputStream is, OutputStream os) throws IOException {
         
         output = out;
         input = in;
+        inStream = is;
+        outStream = os;
         String operationCommand = operation.split(" ")[0];
         System.out.println("Operation: " + operation);
 
@@ -85,7 +91,7 @@ public class OperationExecutioner {
 
     // UP <ws> <file1> ... <filen> # Adicionar ficheiros ao workspace.
     public static void up(String arguments) throws IOException {
-        FileCoordenator fileCoordenator = new FileCoordenator(input, output);
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         String[] parts = arguments.split(" ");
         if (parts.length < 1) {
             System.out.println("Invalid number of arguments");
@@ -110,7 +116,7 @@ public class OperationExecutioner {
         System.out.println("Number of files: " + (parts.length - 3));
 
         for (int i = 3; i < parts.length; i++) {
-            fileCoordenator.receive_file(file_path);
+            fileCoordenator.receive_file("workspaces/" + file_path);
         }
 
         // output.println("UP " + user + " " + arguments);
@@ -124,9 +130,25 @@ public class OperationExecutioner {
             System.out.println("Invalid number of arguments");
             return;
         }
-        String username = arguments.split(" ")[arguments.split(" ").length - 1];
+        String username = arguments.split(" ")[1];
+        String workspace = arguments.split(" ")[2];
+        System.out.println("Username: " + username);
+        String file_path = Workspaces.findWorkspace(workspace);
+        System.out.println("file_path: " + file_path);
 
-        output.println("DW " + username + " " + arguments);
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+
+        for (int i = 3; i < parts.length; i++) {
+            System.out.println("File: " + parts[i]);
+            if(!Workspaces.getAllFilesNames(username, workspace).contains(parts[i])){
+                System.out.println(Workspaces.getAllFilesNames(username, workspace));
+                output.println("NOFILE");
+                continue;
+            }
+            fileCoordenator.send_file("workspaces/" + file_path + "/" + parts[i]);
+        }
+
+        // output.println("DW " + username + " " + arguments);
     }
 
 
@@ -137,15 +159,33 @@ public class OperationExecutioner {
             System.out.println("Invalid number of arguments");
             return;
         }
-        String username = arguments.split(" ")[arguments.split(" ").length - 1];
+        String username = arguments.split(" ")[1];
+        String workspace = arguments.split(" ")[2];
 
-        output.println("RM " + username + " " + arguments);
+        String file_path = Workspaces.findWorkspace(workspace);
+        if (file_path.equals("")) {
+            output.println("NOWS");
+            return;
+        }
+        if (!file_path.contains(username)) {
+            output.println("NOPERMS");
+            return;
+        }
+
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+        for (int i = 3; i < parts.length; i++) {
+            System.out.print("File: " + parts[i] + "");
+            output.println(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i]));
+        }
+
+        // output.println("RM " + username + " " + arguments);
     }
 
 
     // LW # Lista os workspaces associados ao utilizador.
     public static void lw() throws IOException {
         output.println(Workspaces.getAllWorkspaces());
+        output.println("EOF");
     }
 
 
@@ -154,6 +194,7 @@ public class OperationExecutioner {
         String username = arguments.split(" ")[arguments.split(" ").length - 1];
         String workspace = arguments.split(" ")[1];
         output.println(Workspaces.getAllFilesNames(username, workspace));
+        output.println("EOF");
     }
 
 }
