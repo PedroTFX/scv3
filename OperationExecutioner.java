@@ -109,11 +109,14 @@ public class OperationExecutioner {
             output.println("NOPERMS");
             return;
         }
+        output.println("HAS_PERMS");
 
-        // does exists file
+
+
+        // receive files
         for (int i = 3; i < parts.length; i++) {
             if(fileCoordenator.receive_file("workspaces/" + file_path)){
-                System.out.println("OK");
+                output.println("OK");
             }else{
                 System.out.println("ERROR");
             }

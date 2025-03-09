@@ -81,19 +81,16 @@ public class FileCoordenator {
         dataOut.writeLong(file.length());  // Send file size
         dataOut.flush();
 
-        // System.out.println("Sending file: " + file.getName() + " with size: " + file.length());
 
         try (InputStream fileInputStream = new FileInputStream(file)) {
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = fileInputStream.read(buffer)) != -1) {
                 dataOut.write(buffer, 0, bytesRead);
-                // System.out.println("Sent " + bytesRead + " bytes");
             }
         }
 
         dataOut.flush();
-        // System.out.println("File sent successfully\n");
         return true;
     }
 
@@ -104,17 +101,8 @@ public class FileCoordenator {
         String file_to_receive = dataIn.readUTF();
         long fileSize = dataIn.readLong();
         
-        // System.out.println("Receiving file: " + file_to_receive + " with size: " + fileSize);
 
         File file = new File(workspace + "/" + file_to_receive);
-        // System.out.println("File path: " + file.getAbsolutePath());
-        // Ensure the directory exists
-        File parentDir = file.getParentFile();
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            System.out.println("Failed to create directory: " + parentDir.getAbsolutePath());
-            return false;
-        }
-
         try (OutputStream fileOutputStream = new FileOutputStream(file)) {
             byte[] buffer = new byte[4096];
             long bytesReceived = 0;
@@ -125,13 +113,13 @@ public class FileCoordenator {
                 if (bytesRead == -1) break;
                 fileOutputStream.write(buffer, 0, bytesRead);
                 bytesReceived += bytesRead;
-                // System.out.println("Received " + bytesRead + " bytes");
             }
-
             fileOutputStream.flush();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return false;
         }
 
-        // System.out.println("File received successfully\n");
         return true;
     }
 
@@ -140,6 +128,18 @@ public class FileCoordenator {
         System.out.println("Deleting file: " + filename);
         File file = new File(filename);
         return file.delete();
+    }
+
+    public boolean exists(String workspace, String filename) {
+        File[] files = new File("workspaces/" + Workspaces.findWorkspace(workspace) + "/").listFiles();
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if (file.getName().equals(filename)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

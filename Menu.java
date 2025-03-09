@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -112,26 +113,37 @@ class Menu{
     // UP <ws> <file1> ... <filen> # Adicionar ficheiros ao workspace.
     public static void up(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
-        String available_files = "";
-        for (String s : parts){
-            if (!(new File(s)).exists()) {
-                System.out.println("File " + s + " does not exist");
-                continue;
-            }
-            available_files += s + " ";
-        }
         
-        if(available_files.length() == 0){
-            System.out.println("No files available");
+
+        output.println("UP " + username + " " + arguments);
+        // TODO so manda o file dps de ver se ele existe??? makes sense?
+
+        
+        // check perms
+        String perms = input.readLine();
+        if(!(perms.equals("HAS_PERMS"))){
+            System.out.println(perms);
             return;
         }
 
-
-
-        output.println("UP " + username + " " + available_files);
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-        for (String file: available_files.split(" ")){
-            fileCoordenator.send_file(file);
+        for (int i = 1; i < parts.length; i++){
+            // setup
+            String file = parts[i];
+            File[] files_list = new File(".").listFiles();
+
+            // check and send
+            if(files_list != null && Arrays.stream(files_list).anyMatch(f -> f.getName().equals(file))){
+                if(fileCoordenator.send_file(file) && input.readLine().equals("OK")){
+                    System.out.println(file + ": OK");
+                    continue;
+                }else{
+                    System.out.println(file + ": ERR");
+                }
+            }else{
+                System.out.println(file + ": Não Existe");
+                continue;
+            }
         }
     }
 
