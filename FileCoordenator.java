@@ -81,7 +81,7 @@ public class FileCoordenator {
         dataOut.writeLong(file.length());  // Send file size
         dataOut.flush();
 
-        System.out.println("Sending file: " + file.getName() + " with size: " + file.length());
+        // System.out.println("Sending file: " + file.getName() + " with size: " + file.length());
 
         try (InputStream fileInputStream = new FileInputStream(file)) {
             byte[] buffer = new byte[4096];
@@ -93,7 +93,7 @@ public class FileCoordenator {
         }
 
         dataOut.flush();
-        System.out.println("File sent successfully\n");
+        // System.out.println("File sent successfully\n");
         return true;
     }
 
@@ -104,7 +104,7 @@ public class FileCoordenator {
         String file_to_receive = dataIn.readUTF();
         long fileSize = dataIn.readLong();
         
-        System.out.println("Receiving file: " + file_to_receive + " with size: " + fileSize);
+        // System.out.println("Receiving file: " + file_to_receive + " with size: " + fileSize);
 
         File file = new File(workspace + "/" + file_to_receive);
         // System.out.println("File path: " + file.getAbsolutePath());
@@ -131,7 +131,7 @@ public class FileCoordenator {
             fileOutputStream.flush();
         }
 
-        System.out.println("File received successfully\n");
+        // System.out.println("File received successfully\n");
         return true;
     }
 

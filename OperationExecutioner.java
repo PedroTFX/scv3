@@ -46,7 +46,7 @@ public class OperationExecutioner {
                 rm(operation);
                 break;
             case "LW":
-                lw();
+                lw(operation);
                 break;
             case "LS":
                 ls(operation);
@@ -63,11 +63,10 @@ public class OperationExecutioner {
             return;
         }
 
-        String username = arguments.split(" ")[arguments.split(" ").length - 1];
-        String workspaceName = arguments.split(" ")[1];
+        String username = arguments.split(" ")[1];
+        String workspaceName = arguments.split(" ")[2];
 
-        String msg = Workspaces.create(username, workspaceName);
-        output.println(msg);
+        output.println(Workspaces.create(username, workspaceName));
     }
 
 
@@ -80,11 +79,10 @@ public class OperationExecutioner {
             return;
         }
 
-        String username = arguments.split(" ")[arguments.split(" ").length - 1];
-        String collaborator = arguments.split(" ")[1];
-        String workspaceName = arguments.split(" ")[2];
+        String username = arguments.split(" ")[1];
+        String collaborator = arguments.split(" ")[2];
+        String workspaceName = arguments.split(" ")[3];
         
-
         output.println(Workspaces.addCollaborator(username, collaborator, workspaceName));
     }
 
@@ -112,14 +110,15 @@ public class OperationExecutioner {
             return;
         }
 
-
-        System.out.println("Number of files: " + (parts.length - 3));
-
+        // does exists file
         for (int i = 3; i < parts.length; i++) {
-            fileCoordenator.receive_file("workspaces/" + file_path);
+            if(fileCoordenator.receive_file("workspaces/" + file_path)){
+                System.out.println("OK");
+            }else{
+                System.out.println("ERROR");
+            }
         }
 
-        // output.println("UP " + user + " " + arguments);
     }
 
 
@@ -132,23 +131,38 @@ public class OperationExecutioner {
         }
         String username = arguments.split(" ")[1];
         String workspace = arguments.split(" ")[2];
-        System.out.println("Username: " + username);
         String file_path = Workspaces.findWorkspace(workspace);
-        System.out.println("file_path: " + file_path);
+        if (file_path.equals("")) {
+            output.println("NOWS");
+            return;
+        }
+        if (!file_path.contains(username)) {
+            output.println("NOPERMS");
+            return;
+        }
+        // TODO CHECK IF THE USER CAN ACCESS THE WORKSPACE
 
-        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
 
-        for (int i = 3; i < parts.length; i++) {
-            System.out.println("File: " + parts[i]);
-            if(!Workspaces.getAllFilesNames(username, workspace).contains(parts[i])){
-                System.out.println(Workspaces.getAllFilesNames(username, workspace));
-                output.println("NOFILE");
+        String available_files = "";
+        for(int i = 3; i < parts.length; i++){
+            if (!(new File(parts[i])).exists()) {
+                // System.out.println("File " + parts[i] + " does not exist");
                 continue;
             }
-            fileCoordenator.send_file("workspaces/" + file_path + "/" + parts[i]);
+            available_files += parts[i] + " ";
         }
 
-        // output.println("DW " + username + " " + arguments);
+        output.println(available_files);
+        if(available_files.length() == 0){
+            return;
+        }
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+
+        for (String s : available_files.split(" ")) {
+            // System.out.println("File: " + s);
+            fileCoordenator.send_file("workspaces/" + file_path + "/" + s);
+        }
+
     }
 
 
@@ -183,8 +197,15 @@ public class OperationExecutioner {
 
 
     // LW # Lista os workspaces associados ao utilizador.
-    public static void lw() throws IOException {
-        output.println(Workspaces.getAllWorkspaces());
+    public static void lw(String operation) throws IOException {
+        String username = operation.split(" ")[1];
+        String workspaces = Workspaces.getAllWorkspaces();
+        for (String workspace : workspaces.split("\n")) {
+            if(Workspaces.hasCollaborator(workspace, username)){
+                System.out.println(workspace);
+                output.println(workspace);
+            }
+        }
         output.println("EOF");
     }
 

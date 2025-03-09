@@ -35,27 +35,11 @@ class Workspaces{
             return "OK";
         }
 
-        // find the workspace folder
-        File directory = new File("workspaces/");
-        File[] matchingFolders = directory.listFiles(file -> file.isDirectory() && file.getName().equals(fileName));
-        
-        // add the collaborator to the workspace
-        return matchingFolders != null && matchingFolders.length > 0  && matchingFolders[0].renameTo(new File("workspaces/" + fileName + "," + collaborator)) ? "OK" : "ERR";
-    }
+        // find the workspace folder and add the collaborator
+        File file = new File("workspaces/" + fileName);
+        File file_renamed = new File("workspaces/" + fileName + "," + collaborator);
+        return file.renameTo(file_renamed) ? "OK" : "ERR";
 
-    // DEPRICATED
-    public static String findWorkspace(String Owner, String workspaceName){
-        String partialName = workspaceName +":"+ Owner;
-        File directory = new File("workspaces/");
-        // find the workspace folder
-        File[] matchingFolders = directory.listFiles(file -> file.isDirectory() && file.getName().contains(partialName));
-        String folderName = "";
-        if (matchingFolders != null && matchingFolders.length > 0) {
-            for (File folder : matchingFolders) {
-                folderName = folder.getName();
-            }
-        }
-        return folderName;
     }
 
 
@@ -87,9 +71,8 @@ class Workspaces{
             return "NOPERMS";
         }
 
-
-        File folder = new File("workspaces/" + findWorkspace(User, workspaceName) + "/");
-        File[] files = folder.listFiles();
+        // get all files in the workspace
+        File[] files = new File("workspaces/" + findWorkspace(workspaceName) + "/").listFiles();
         String fileNames = "";
         if (files != null && files.length > 0) {
             for (File file : files) {
@@ -99,42 +82,31 @@ class Workspaces{
         return fileNames.length() > 0 ? fileNames.substring(0, fileNames.length() - 1) : "EMPTY";
     }
 
-
-
-
-
-
-    // public boolean isOwner(String workspaceName, String Owner){
-    //     File file = new File("workspaces/" + workspaceName +":"+ Owner + ">" + Owner);
-    //     return file.exists();
-    // }
-
-    // public boolean isCollaborator(String workspaceName, String Owner, String collaborator){
-    //     File file = new File("workspaces/" + workspaceName +":"+ Owner + ">" + collaborator);
-    //     return file.exists();
-    // }
     
 
     public static void main(String[] args){
         Workspaces ws = new Workspaces();
         // full test the class functions
         System.out.println(ws.existsWorkspace("workspace1"));      // false
-        System.out.println(ws.create("admin", "workspace1"));               // OK
+        System.out.println(ws.create("admin", "workspace1"));      // OK
         System.out.println(ws.existsWorkspace("workspace1"));      // true
-        System.out.println(ws.create("admin", "workspace1"));               // NOK
+        System.out.println(ws.create("admin", "workspace1"));      // NOK
 
         String fileName = ws.findWorkspace("workspace1");
-        System.out.println(ws.hasCollaborator(fileName, "user1")); // false
+        System.out.println(ws.hasCollaborator(fileName, "user1"));              // false
         System.out.println(ws.addCollaborator("admin", "user1", "workspace1")); // OK
 
         fileName = ws.findWorkspace("workspace1");
-        System.out.println(ws.hasCollaborator(fileName, "user1")); // true
+        System.out.println(ws.hasCollaborator(fileName, "user1"));              // true
         System.out.println(ws.addCollaborator("admin", "user1", "workspace1")); // OK
         System.out.println(ws.addCollaborator("admin", "user1", "workspace1")); // OK
 
-        System.out.println(ws.getAllWorkspaces());                          // workspace1:admin>admin,user
+        System.out.println(ws.getAllWorkspaces());                          // workspace1:admin>admin,user1
         System.out.println(ws.getAllFilesNames("admin", "workspace1"));     // EMPTY
 
+        System.out.println(getAllFilesNames("admin", "ROOM"));
+        System.out.println(getAllFilesNames("user1", "ROOM"));
+        System.out.println(getAllFilesNames("admin", "ROOM1"));
 
     }
 }

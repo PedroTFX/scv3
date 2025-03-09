@@ -33,46 +33,67 @@ class Menu{
 
 
         while(true){
-            String command = new Scanner(System.in).nextLine();
-            String commandName = command.split(" ")[0];
-            String arguments = command.substring(command.indexOf(" ") + 1);
-            switch(commandName){
-                case "CREATE":
-                    create(username, arguments);
-                    break;
-                case "ADD":
-                    add(username, arguments);
-                    break;
-                case "UP":
-                    up(username, arguments);
-                    break;
-                case "DW":
-                    dw(username, arguments);
-                    break;
-                case "RM":
-                    rm(username, arguments);
-                    break;
-                case "LW":
-                    lw();
-                    break;
-                case "LS":
-                    ls(username, arguments);
-                    break;
-                default:
-                    System.out.println(commandName);
-                    System.out.println("Command not found");
+            String input = new Scanner(System.in).nextLine();
+            String commandName = input.split(" ")[0];
+            String[] arguments = input.split(" ");
+            
+            // switch(commandName){
+            //     case "CREATE":
+            //         create(username, arguments);
+            //         break;
+            //     case "ADD":
+            //         add(username, arguments);
+            //         break;
+            //     case "UP":
+            //         up(username, arguments);
+            //         break;
+            //     case "DW":
+            //         dw(username, arguments);
+            //         break;
+            //     case "RM":
+            //         rm(username, arguments);
+            //         break;
+            //     case "LW":
+            //         lw(username);
+            //         break;
+            //     case "LS":
+            //         ls(username, arguments);
+            //         break;
+            //     default:
+            //         System.out.println(commandName);
+            //         System.out.println("Command not found");
+            // }
+
+            if(commandName.equals("CREATE") && arguments.length == 2){
+                create(username, input.substring(7));
+            }
+            else if(commandName.equals("ADD") && arguments.length == 3){
+                add(username, input.substring(4));
+            }
+            else if(commandName.equals("UP") && arguments.length > 2){
+                up(username, input.substring(3));
+            }
+            else if(commandName.equals("DW") && arguments.length > 2){
+                dw(username, input.substring(3));
+            }
+            else if(commandName.equals("RM") && arguments.length > 2){
+                rm(username, input.substring(3));
+            }
+            else if(commandName.equals("LW")){
+                lw(username);
+            }
+            else if(commandName.equals("LS") && arguments.length == 2){
+                ls(username, input.substring(3));
+            }
+            else{
+                System.out.println("Command not found or invalid number of arguments");
             }
         }
     }
 
     //  CREATE <ws> # Criar um novo workspace - utilizador é Owner.
     public static void create(String username, String arguments) throws IOException{
-        String[] parts = arguments.split(" ");
-        if(parts.length != 1){
-            System.out.println("Invalid number of arguments");
-            return;
-        }
-        output.println("CREATE" + " " + arguments + " " + username);
+        output.println("CREATE" + " " + username + " " + arguments);
         System.out.println(input.readLine());
     }
 
@@ -84,31 +105,34 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("ADD" + " " + arguments + " " + username);
+        output.println("ADD" + " " + username + " " + arguments);
         System.out.println(input.readLine());
     }
 
     // UP <ws> <file1> ... <filen> # Adicionar ficheiros ao workspace.
     public static void up(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
-        if(parts.length < 2){
-            System.out.println("Invalid number of arguments");
+        String available_files = "";
+        for (String s : parts){
+            if (!(new File(s)).exists()) {
+                System.out.println("File " + s + " does not exist");
+                continue;
+            }
+            available_files += s + " ";
+        }
+        
+        if(available_files.length() == 0){
+            System.out.println("No files available");
             return;
         }
 
-        output.println("UP " + username + " " + arguments);
-        System.out.println("arguments :" + arguments);
-        
-        // System.out.println("Number of files: " + (parts.length - 1));
-        
-        
+
+
+        output.println("UP " + username + " " + available_files);
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-
-        for(int i = 1; i < parts.length; i++){
-            fileCoordenator.send_file(parts[i]);
+        for (String file: available_files.split(" ")){
+            fileCoordenator.send_file(file);
         }
-
-
     }
 
     // DW <ws> <file1> ... <filen> # Download de ficheiros do workspace para a máquina local.
@@ -119,9 +143,24 @@ class Menu{
             return;
         }
         output.println("DW" + " " + username + " " + arguments);
+        
+        String files_available = input.readLine();
+        if(files_available.equals("NOPERMS") || files_available.equals("NOWS")){
+            System.out.println(files_available);
+            return;
+        }
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-        for(int i = 1; i < parts.length; i++){
-            fileCoordenator.receive_file(".");
+        for (String file: files_available.split(" ")){
+            for(int i = 1; i < parts.length; i++){
+                if(parts[i].equals(file)){
+                    if(fileCoordenator.receive_file(".")){
+                        System.out.println(parts[i] + " #ficheiro transferido");
+                    }
+                }else{
+                    System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
+                }
+
+            }
         }
     }
 
@@ -140,26 +179,41 @@ class Menu{
     }
 
     // LW # Lista os workspaces associados ao utilizador.
-    public static void lw()  throws IOException{
-        output.println("LW");
+    public static void lw(String username)  throws IOException{
+        output.println("LW " + username);
         String line = "";
-        while(!(line = input.readLine()).equals("EOF")){
-            System.out.println(line);
+        String workspaces = "{ ";
+        while(!(line = input.readLine()).equals("EOF") || line.equals("")){
+            workspaces += line + " ; ";
         }
+        workspaces = workspaces.substring(0, workspaces.length() - 2);
+        workspaces += " }";
+        System.out.println(workspaces);
     }
 
     //  LS <ws> # Lista os ficheiros dentro de um workspace.
     public static void ls(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
-        if(parts.length != 1){
+        System.out.println("arguments " + arguments);
+        if(parts.length != 1 && !parts[0].equals("LS")){
             System.out.println("Invalid number of arguments");
             return;
         }
-        output.println("LS" + " " + arguments + " " + username);
+        output.println("LS" + " " + username + " " + arguments);
         String line = "";
+        String files = "{ ";
         while(!(line = input.readLine()).equals("EOF")){
-            System.out.println(line);
+            if (line == "NOPERM" || line == "NOWS"){
+                System.out.println(line);
+                return;
+            }
+            else{
+                files += line + " ; ";
+            }
         }
+        files = files.substring(0, files.length() - 2);
+        files += " }";
+        System.out.println(files);
     }
 
     
