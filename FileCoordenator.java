@@ -74,6 +74,11 @@ public class FileCoordenator {
 
     public boolean send_file(String filename) throws IOException {
         File file = new File(filename);
+        System.out.println("here:" + file.getAbsolutePath());
+        if (false) {
+            System.out.println("File not found: " + filename);
+            return false;
+        }
         DataOutputStream dataOut = new DataOutputStream(outputStream);
 
         // Send file metadata
@@ -88,6 +93,8 @@ public class FileCoordenator {
             while ((bytesRead = fileInputStream.read(buffer)) != -1) {
                 dataOut.write(buffer, 0, bytesRead);
             }
+        } catch (Exception e) {
+            return false;
         }
 
         dataOut.flush();

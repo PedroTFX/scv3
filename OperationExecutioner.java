@@ -99,29 +99,29 @@ public class OperationExecutioner {
         // arguments: UP admin new_room users.txt
         String user = parts[1];
         String workspace = parts[2];
-
         String file_path = Workspaces.findWorkspace(workspace);
         if (file_path.equals("")) {
             output.println("NOWS");
             return;
         }
-        if (!file_path.contains(user)) {
+        if (!Workspaces.hasCollaborator(file_path, user)) {
             output.println("NOPERMS");
             return;
         }
         output.println("HAS_PERMS");
 
 
-
         // receive files
         for (int i = 3; i < parts.length; i++) {
+            System.out.println("File: " + parts[i]);
             if(fileCoordenator.receive_file("workspaces/" + file_path)){
                 output.println("OK");
+                System.out.println("File: " + parts[i] + " received");
             }else{
                 System.out.println("ERROR");
             }
         }
-
+        System.out.println("here");
     }
 
 

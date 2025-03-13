@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.Arrays;
 
 
 // workspace1:admin>admin,user1
@@ -17,7 +18,8 @@ class Workspaces{
     }
 
     public static boolean hasCollaborator(String fileName, String collaborator){
-        return fileName.split(">")[1].contains(collaborator);
+        return Arrays.stream(fileName.split(">")[1].split(",")).anyMatch(f -> f.equals(collaborator));
+        // return fileName.split(">")[1].contains(collaborator);
     }
 
 
@@ -46,7 +48,7 @@ class Workspaces{
     public static String findWorkspace(String workspaceName){
         File directory = new File("workspaces/");
         // find the workspace folder
-        File[] matchingFolders = directory.listFiles(file -> file.isDirectory() && file.getName().contains(workspaceName));;
+        File[] matchingFolders = directory.listFiles(file -> file.isDirectory() && file.getName().split(":")[0].equals(workspaceName));;
         return matchingFolders != null && matchingFolders.length > 0 ? matchingFolders[0].getName() : "";
     }
 

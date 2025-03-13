@@ -114,10 +114,38 @@ class Menu{
     public static void up(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         
+        //TODO FIX THE SENDING OF FILES
+        // THE SETUP FOR SENDING FILES ONE BY ONE LIKE UP ROOM USER FILE 
+        // AND REPEAT FOR ALL FILES MIGHT BE A POSSIBILITY TO EXPLORE DUE TO THE SIMPLICITY
 
-        output.println("UP " + username + " " + arguments);
-        // TODO so manda o file dps de ver se ele existe??? makes sense?
+        // check files
+        String files_available = "";
+        String[] files = files_available.split(" ");
+        File[] files_list = new File(".").listFiles();
+        for (int i = 1; i < parts.length; i++){
+            for (File file : files_list){
+                if(parts[i].equals(file.getName())){
+                    files_available += parts[i] + " ";
+                }
+            }
+        }
+        if(files_available.equals("")){
+            System.out.println("No files available");
+            return;
+        }else{
+            for (int i = 1; i < parts.length; i++){
+                for (String file : files){
+                    if(parts[i].equals(file)){
+                        i++;
+                        break;
+                    }
+                }
+                System.out.println(parts[i] + ": Nao Existe");
+            }
+        }
 
+
+        output.println("UP " + username + " " + files_available);
         
         // check perms
         String perms = input.readLine();
@@ -126,25 +154,19 @@ class Menu{
             return;
         }
 
+        // send files
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-        for (int i = 1; i < parts.length; i++){
-            // setup
-            String file = parts[i];
-            File[] files_list = new File(".").listFiles();
-
-            // check and send
-            if(files_list != null && Arrays.stream(files_list).anyMatch(f -> f.getName().equals(file))){
-                if(fileCoordenator.send_file(file) && input.readLine().equals("OK")){
-                    System.out.println(file + ": OK");
-                    continue;
-                }else{
-                    System.out.println(file + ": ERR");
-                }
-            }else{
-                System.out.println(file + ": Não Existe");
+        for (String file : files){
+            // send
+            if(fileCoordenator.send_file(file) && input.readLine().equals("OK")){
+                System.out.println(file + ": OK");
                 continue;
+            }else{
+                System.out.println(file + ": ERR");
             }
         }
+
+        output.println("EOF");
     }
 
     // DW <ws> <file1> ... <filen> # Download de ficheiros do workspace para a máquina local.
