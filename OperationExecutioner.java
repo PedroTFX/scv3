@@ -121,7 +121,6 @@ public class OperationExecutioner {
                 System.out.println("ERROR");
             }
         }
-        System.out.println("here");
     }
 
 
@@ -215,8 +214,8 @@ public class OperationExecutioner {
 
     //  LS <ws> # Lista os ficheiros dentro de um workspace.
     public static void ls(String arguments) throws IOException {
-        String username = arguments.split(" ")[arguments.split(" ").length - 1];
-        String workspace = arguments.split(" ")[1];
+        String username = arguments.split(" ")[1];
+        String workspace = arguments.split(" ")[2];
         output.println(Workspaces.getAllFilesNames(username, workspace));
         output.println("EOF");
     }

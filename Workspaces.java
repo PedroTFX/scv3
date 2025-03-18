@@ -66,6 +66,8 @@ class Workspaces{
 
     public static String getAllFilesNames(String User, String workspaceName){
         String fileName = findWorkspace(workspaceName);
+        System.out.println("filename" + fileName);
+        System.out.println("workspace" + workspaceName);
         if(fileName.equals("")){
             return "NOWS";
         }

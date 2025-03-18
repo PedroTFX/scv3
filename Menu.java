@@ -114,10 +114,6 @@ class Menu{
     public static void up(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
         
-        //TODO FIX THE SENDING OF FILES
-        // THE SETUP FOR SENDING FILES ONE BY ONE LIKE UP ROOM USER FILE 
-        // AND REPEAT FOR ALL FILES MIGHT BE A POSSIBILITY TO EXPLORE DUE TO THE SIMPLICITY
-
         // check files
         String files_available = "";
         String[] files = files_available.split(" ");
@@ -129,23 +125,22 @@ class Menu{
                 }
             }
         }
+
+        System.out.println("files available: " + files_available);
+
         if(files_available.equals("")){
             System.out.println("No files available");
             return;
         }else{
             for (int i = 1; i < parts.length; i++){
-                for (String file : files){
-                    if(parts[i].equals(file)){
-                        i++;
-                        break;
-                    }
+                if (!files_available.contains(parts[i])){
+                    System.out.println(parts[i] + ": Nao Existe");
                 }
-                System.out.println(parts[i] + ": Nao Existe");
             }
         }
 
 
-        output.println("UP " + username + " " + files_available);
+        output.println("UP " + username + " " + parts[0] + " " + files_available);
         
         // check perms
         String perms = input.readLine();
@@ -156,7 +151,7 @@ class Menu{
 
         // send files
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-        for (String file : files){
+        for (String file : files_available.split(" ")){
             // send
             if(fileCoordenator.send_file(file) && input.readLine().equals("OK")){
                 System.out.println(file + ": OK");
@@ -166,7 +161,7 @@ class Menu{
             }
         }
 
-        output.println("EOF");
+        // output.println("EOF");
     }
 
     // DW <ws> <file1> ... <filen> # Download de ficheiros do workspace para a máquina local.
@@ -228,7 +223,6 @@ class Menu{
     //  LS <ws> # Lista os ficheiros dentro de um workspace.
     public static void ls(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
-        System.out.println("arguments " + arguments);
         if(parts.length != 1 && !parts[0].equals("LS")){
             System.out.println("Invalid number of arguments");
             return;
@@ -246,7 +240,7 @@ class Menu{
             }
         }
         files = files.substring(0, files.length() - 2);
-        files += " }";
+        files += "}";
         System.out.println(files);
     }
 
