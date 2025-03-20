@@ -74,11 +74,6 @@ public class FileCoordenator {
 
     public boolean send_file(String filename) throws IOException {
         File file = new File(filename);
-        System.out.println("here:" + file.getAbsolutePath());
-        if (false) {
-            System.out.println("File not found: " + filename);
-            return false;
-        }
         DataOutputStream dataOut = new DataOutputStream(outputStream);
 
         // Send file metadata
@@ -107,7 +102,12 @@ public class FileCoordenator {
         // Receive metadata
         String file_to_receive = dataIn.readUTF();
         long fileSize = dataIn.readLong();
+
+        if(file_to_receive.equals("")){
+            return false;
+        }
         
+        // System.out.println("Receiving file: " + file_to_receive + " (" + fileSize + " bytes)");
 
         File file = new File(workspace + "/" + file_to_receive);
         try (OutputStream fileOutputStream = new FileOutputStream(file)) {
@@ -129,7 +129,6 @@ public class FileCoordenator {
 
         return true;
     }
-
 
     public boolean delete_file(String filename) {
         System.out.println("Deleting file: " + filename);

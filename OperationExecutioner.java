@@ -142,28 +142,38 @@ public class OperationExecutioner {
             output.println("NOPERMS");
             return;
         }
-        // TODO CHECK IF THE USER CAN ACCESS THE WORKSPACE
 
-
-        String available_files = "";
-        for(int i = 3; i < parts.length; i++){
-            if (!(new File(parts[i])).exists()) {
-                // System.out.println("File " + parts[i] + " does not exist");
-                continue;
+        // check if files are available
+        String files_available = "";
+        File[] files_list = new File("workspaces/" + file_path).listFiles();
+        for (int i = 3; i < parts.length; i++){
+            for (File file : files_list){
+                if(parts[i].equals(file.getName())){
+                    files_available += parts[i] + " ";
+                }
             }
-            available_files += parts[i] + " ";
         }
 
-        output.println(available_files);
-        if(available_files.length() == 0){
+        System.out.println("Files available:" + files_available + "-");
+
+        output.println(files_available);
+        if(files_available.length() == 0){
+            System.out.println("No files available");
             return;
         }
-        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
 
-        for (String s : available_files.split(" ")) {
-            // System.out.println("File: " + s);
-            fileCoordenator.send_file("workspaces/" + file_path + "/" + s);
+
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+        for (String file : files_available.split(" ")){
+            // send
+            if(fileCoordenator.send_file(file) && input.readLine().equals("OK")){
+                System.out.println(file + ": OK");
+            }else{
+                System.out.println(file + ": ERR");
+            }
         }
+
+        // output.println("EOF");
 
     }
 
@@ -178,6 +188,7 @@ public class OperationExecutioner {
         String username = arguments.split(" ")[1];
         String workspace = arguments.split(" ")[2];
 
+        // checks
         String file_path = Workspaces.findWorkspace(workspace);
         if (file_path.equals("")) {
             output.println("NOWS");
@@ -188,12 +199,17 @@ public class OperationExecutioner {
             return;
         }
 
+        // remove files
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         for (int i = 3; i < parts.length; i++) {
-            System.out.print("File: " + parts[i] + "");
-            output.println(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i]));
+            System.out.print("File: " + parts[i] + " ");
+            if(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i])){
+                output.println(parts[i] + ": APAGADO");
+            }else{
+                output.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
+            }
+            // output.println(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i]));
         }
-
         // output.println("RM " + username + " " + arguments);
     }
 
@@ -204,11 +220,11 @@ public class OperationExecutioner {
         String workspaces = Workspaces.getAllWorkspaces();
         for (String workspace : workspaces.split("\n")) {
             if(Workspaces.hasCollaborator(workspace, username)){
-                System.out.println(workspace);
-                output.println(workspace);
+                System.out.print(workspace.split(":")[0] + " ");
+                output.println(workspace.split(":")[0]);
             }
         }
-        output.println("EOF");
+        output.println("EOF - LW");
     }
 
 

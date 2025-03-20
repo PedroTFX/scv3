@@ -116,7 +116,6 @@ class Menu{
         
         // check files
         String files_available = "";
-        String[] files = files_available.split(" ");
         File[] files_list = new File(".").listFiles();
         for (int i = 1; i < parts.length; i++){
             for (File file : files_list){
@@ -138,7 +137,6 @@ class Menu{
                 }
             }
         }
-
 
         output.println("UP " + username + " " + parts[0] + " " + files_available);
         
@@ -175,22 +173,46 @@ class Menu{
         
         String files_available = input.readLine();
         if(files_available.equals("NOPERMS") || files_available.equals("NOWS")){
-            System.out.println(files_available);
+            System.out.println(files_available); // NOPERMS or NOWS
             return;
         }
-        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-        for (String file: files_available.split(" ")){
-            for(int i = 1; i < parts.length; i++){
-                if(parts[i].equals(file)){
-                    if(fileCoordenator.receive_file(".")){
-                        System.out.println(parts[i] + " #ficheiro transferido");
-                    }
-                }else{
-                    System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
-                }
 
+
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+        for (String file: files_available.split(" ")) {
+            if(fileCoordenator.receive_file(".")){
+                output.println("OK");
+                System.out.println("File: " + file + " received");
+            }else{
+                System.out.println("ERR");
             }
         }
+
+        for (int i = 1; i < parts.length; i++){
+            final int index = i;
+            if(!Arrays.stream(files_available.split(" ")).anyMatch(f -> f.equals(parts[index]))){
+                System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
+            }
+        }
+
+        // if(input.readLine().equals("EOF")){
+        //     return;
+        // }
+        
+        
+        
+        // for (String file: files_available.split(" ")){
+        //     for(int i = 1; i < parts.length; i++){
+        //         if(parts[i].equals(file)){
+        //             if(fileCoordenator.receive_file(".")){
+        //                 System.out.println(parts[i] + " #ficheiro transferido");
+        //             }
+        //         }else{
+        //             System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
+        //         }
+        //         continue;
+        //     }
+        // }
     }
 
     // RM <ws> <file1> ... <filen> # Apagar ficheiros do workspace.
@@ -212,11 +234,11 @@ class Menu{
         output.println("LW " + username);
         String line = "";
         String workspaces = "{ ";
-        while(!(line = input.readLine()).equals("EOF") || line.equals("")){
+        while(!(line = input.readLine()).equals("EOF - LW")){
             workspaces += line + " ; ";
         }
         workspaces = workspaces.substring(0, workspaces.length() - 2);
-        workspaces += " }";
+        workspaces += "}";
         System.out.println(workspaces);
     }
 
