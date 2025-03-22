@@ -81,6 +81,7 @@ public class FileCoordenator {
         dataOut.writeLong(file.length());  // Send file size
         dataOut.flush();
 
+        
 
         try (InputStream fileInputStream = new FileInputStream(file)) {
             byte[] buffer = new byte[4096];
@@ -89,6 +90,7 @@ public class FileCoordenator {
                 dataOut.write(buffer, 0, bytesRead);
             }
         } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
             return false;
         }
 
@@ -96,20 +98,22 @@ public class FileCoordenator {
         return true;
     }
 
-    public boolean receive_file(String workspace) throws IOException {
+    public boolean receive_file(String path) throws IOException {
         DataInputStream dataIn = new DataInputStream(inputStream);
 
         // Receive metadata
         String file_to_receive = dataIn.readUTF();
         long fileSize = dataIn.readLong();
-
-        if(file_to_receive.equals("")){
-            return false;
-        }
         
-        // System.out.println("Receiving file: " + file_to_receive + " (" + fileSize + " bytes)");
 
-        File file = new File(workspace + "/" + file_to_receive);
+        // file already exists
+        while(isFileInFolder(file_to_receive, path)){
+            System.out.println(file_to_receive + " : File already exists file will be renamed to: new_" + file_to_receive);
+            file_to_receive = "new_" + file_to_receive;
+        }
+
+        File file = new File(path + "/" + file_to_receive);
+
         try (OutputStream fileOutputStream = new FileOutputStream(file)) {
             byte[] buffer = new byte[4096];
             long bytesReceived = 0;
@@ -136,8 +140,11 @@ public class FileCoordenator {
         return file.delete();
     }
 
-    public boolean exists(String workspace, String filename) {
-        File[] files = new File("workspaces/" + Workspaces.findWorkspace(workspace) + "/").listFiles();
+    public static boolean isFileInFolder(String filename, String folder) {
+        // System.out.println(folder);
+        // System.out.println("/" + Workspaces.findWorkspace(folder) + "/");
+        File[] files = new File(folder + "/").listFiles();
+        // System.out.println(files.length);
         if (files != null && files.length > 0) {
             for (File file : files) {
                 if (file.getName().equals(filename)) {

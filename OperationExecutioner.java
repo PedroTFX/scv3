@@ -134,6 +134,8 @@ public class OperationExecutioner {
         String username = arguments.split(" ")[1];
         String workspace = arguments.split(" ")[2];
         String file_path = Workspaces.findWorkspace(workspace);
+
+        // check perms
         if (file_path.equals("")) {
             output.println("NOWS");
             return;
@@ -145,16 +147,11 @@ public class OperationExecutioner {
 
         // check if files are available
         String files_available = "";
-        File[] files_list = new File("workspaces/" + file_path).listFiles();
         for (int i = 3; i < parts.length; i++){
-            for (File file : files_list){
-                if(parts[i].equals(file.getName())){
-                    files_available += parts[i] + " ";
-                }
+            if(FileCoordenator.isFileInFolder(parts[i], "workspaces/" + file_path)){
+                files_available += parts[i] + " ";
             }
         }
-
-        System.out.println("Files available:" + files_available + "-");
 
         output.println(files_available);
         if(files_available.length() == 0){
@@ -162,11 +159,13 @@ public class OperationExecutioner {
             return;
         }
 
-
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         for (String file : files_available.split(" ")){
-            // send
-            if(fileCoordenator.send_file(file) && input.readLine().equals("OK")){
+            if(file.equals("")){
+                continue;
+            }
+            System.out.println("Sending file: " + file);
+            if(fileCoordenator.send_file("workspaces/" + file_path + "/" + file) && input.readLine().equals("OK")){
                 System.out.println(file + ": OK");
             }else{
                 System.out.println(file + ": ERR");

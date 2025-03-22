@@ -2,9 +2,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.io.InputStream;
@@ -169,17 +171,24 @@ class Menu{
             System.out.println("Invalid number of arguments");
             return;
         }
+
         output.println("DW" + " " + username + " " + arguments);
-        
+
+        // check perms
         String files_available = input.readLine();
         if(files_available.equals("NOPERMS") || files_available.equals("NOWS")){
             System.out.println(files_available); // NOPERMS or NOWS
             return;
         }
 
+        if(files_available.split(" ").length == 0){
+            System.out.println("No files available");
+            return;
+        }
 
+        ArrayList<String> list_files_available = new ArrayList<String>(Arrays.asList(files_available.split(" ")));
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-        for (String file: files_available.split(" ")) {
+        for (String file: list_files_available) {
             if(fileCoordenator.receive_file(".")){
                 output.println("OK");
                 System.out.println("File: " + file + " received");
@@ -188,12 +197,12 @@ class Menu{
             }
         }
 
-        for (int i = 1; i < parts.length; i++){
-            final int index = i;
-            if(!Arrays.stream(files_available.split(" ")).anyMatch(f -> f.equals(parts[index]))){
-                System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
-            }
-        }
+        // for (int i = 1; i < parts.length; i++){
+        //     final int index = i;
+        //     if(!list_files_available.contains(parts[i])){
+        //         System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
+        //     }
+        // }
 
         // if(input.readLine().equals("EOF")){
         //     return;
