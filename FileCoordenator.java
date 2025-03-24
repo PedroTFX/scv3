@@ -73,6 +73,10 @@ public class FileCoordenator {
     }
 
     public boolean send_file(String filename) throws IOException {
+        if(filename != null && filename.length() == 0){
+            return false;
+        }
+
         File file = new File(filename);
         DataOutputStream dataOut = new DataOutputStream(outputStream);
 

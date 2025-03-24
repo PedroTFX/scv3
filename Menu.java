@@ -197,31 +197,6 @@ class Menu{
             }
         }
 
-        // for (int i = 1; i < parts.length; i++){
-        //     final int index = i;
-        //     if(!list_files_available.contains(parts[i])){
-        //         System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
-        //     }
-        // }
-
-        // if(input.readLine().equals("EOF")){
-        //     return;
-        // }
-        
-        
-        
-        // for (String file: files_available.split(" ")){
-        //     for(int i = 1; i < parts.length; i++){
-        //         if(parts[i].equals(file)){
-        //             if(fileCoordenator.receive_file(".")){
-        //                 System.out.println(parts[i] + " #ficheiro transferido");
-        //             }
-        //         }else{
-        //             System.out.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
-        //         }
-        //         continue;
-        //     }
-        // }
     }
 
     // RM <ws> <file1> ... <filen> # Apagar ficheiros do workspace.
