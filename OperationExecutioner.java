@@ -97,19 +97,18 @@ public class OperationExecutioner {
         }
 
         // arguments: UP admin new_room users.txt
+        // check perms
         String user = parts[1];
         String workspace = parts[2];
-        String file_path = Workspaces.findWorkspace(workspace);
-        if (file_path.equals("")) {
-            output.println("NOWS");
-            return;
-        }
-        if (!Workspaces.hasCollaborator(file_path, user)) {
-            output.println("NOPERMS");
+        String hasPerms = Workspaces.hasPerms(user, workspace);
+        if(!hasPerms.equals("OK")){
+            output.println(hasPerms);
             return;
         }
         output.println("HAS_PERMS");
+        
 
+        String file_path = Workspaces.findWorkspace(workspace);
 
         // receive files
         for (int i = 3; i < parts.length; i++) {
@@ -133,17 +132,13 @@ public class OperationExecutioner {
         }
         String username = arguments.split(" ")[1];
         String workspace = arguments.split(" ")[2];
-        String file_path = Workspaces.findWorkspace(workspace);
+        String hasPerms = Workspaces.hasPerms(username, workspace);
+        if(!hasPerms.equals("OK")){
+            output.println(hasPerms);
+            return;
+        }
 
-        // check perms
-        if (file_path.equals("")) {
-            output.println("NOWS");
-            return;
-        }
-        if (!file_path.contains(username)) {
-            output.println("NOPERMS");
-            return;
-        }
+        String file_path = Workspaces.findWorkspace(workspace);
 
         // check if files are available
         String files_available = "";

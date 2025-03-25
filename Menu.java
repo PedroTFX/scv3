@@ -37,37 +37,17 @@ class Menu{
 
         while(true){
             String input = new Scanner(System.in).nextLine();
+
+            // check if there are special characters
             String commandName = input.split(" ")[0];
             String[] arguments = input.split(" ");
             
-            // switch(commandName){
-            //     case "CREATE":
-            //         create(username, arguments);
-            //         break;
-            //     case "ADD":
-            //         add(username, arguments);
-            //         break;
-            //     case "UP":
-            //         up(username, arguments);
-            //         break;
-            //     case "DW":
-            //         dw(username, arguments);
-            //         break;
-            //     case "RM":
-            //         rm(username, arguments);
-            //         break;
-            //     case "LW":
-            //         lw(username);
-            //         break;
-            //     case "LS":
-            //         ls(username, arguments);
-            //         break;
-            //     default:
-            //         System.out.println(commandName);
-            //         System.out.println("Command not found");
-            // }
-
             if(commandName.equals("CREATE") && arguments.length == 2){
+                String args = input.substring(7);
+                if(args.matches(".*[!@#$%^&*()_+=\\[\\]{};':\"\\\\|,.<>/?].*")){
+                    System.out.println("Invalid characters");
+                    continue;
+                }
                 create(username, input.substring(7));
             }
             else if(commandName.equals("ADD") && arguments.length == 3){
@@ -127,7 +107,7 @@ class Menu{
             }
         }
 
-        System.out.println("files available: " + files_available);
+        // System.out.println("files available: " + files_available);
 
         if(files_available.equals("")){
             System.out.println("No files available");
@@ -191,7 +171,7 @@ class Menu{
         for (String file: list_files_available) {
             if(fileCoordenator.receive_file(".")){
                 output.println("OK");
-                System.out.println("File: " + file + " received");
+                // System.out.println("File: " + file + " received");
             }else{
                 System.out.println("ERR");
             }

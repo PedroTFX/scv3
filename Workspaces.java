@@ -22,6 +22,17 @@ class Workspaces{
         // return fileName.split(">")[1].contains(collaborator);
     }
 
+    public static String hasPerms(String User, String workspaceName){
+        String fileName = findWorkspace(workspaceName);
+        if(fileName.equals("")){
+            return "NOWS";
+        }
+        if(!hasCollaborator(fileName, User)){
+            return "NOPERMS";
+        }
+        return "OK";
+    }
+
 
     public static String addCollaborator(String User, String collaborator, String workspaceName){
         String fileName = findWorkspace(workspaceName);
@@ -66,8 +77,8 @@ class Workspaces{
 
     public static String getAllFilesNames(String User, String workspaceName){
         String fileName = findWorkspace(workspaceName);
-        System.out.println("filename" + fileName);
-        System.out.println("workspace" + workspaceName);
+        System.out.println("filename " + fileName);
+        System.out.println("workspace " + workspaceName);
         if(fileName.equals("")){
             return "NOWS";
         }
