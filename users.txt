@@ -1,2 +1,4 @@
 admin <///> admin
 user4 <///> user4
+user1 <///> user1
+user10 <///> user10
