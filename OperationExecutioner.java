@@ -204,6 +204,7 @@ public class OperationExecutioner {
             }
             // output.println(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i]));
         }
+        // output.println();
         // output.println("RM " + username + " " + arguments);
     }
 
@@ -212,13 +213,22 @@ public class OperationExecutioner {
     public static void lw(String operation) throws IOException {
         String username = operation.split(" ")[1];
         String workspaces = Workspaces.getAllWorkspaces();
-        for (String workspace : workspaces.split("\n")) {
-            if(Workspaces.hasCollaborator(workspace, username)){
-                System.out.print(workspace.split(":")[0] + " ");
-                output.println(workspace.split(":")[0]);
+        System.out.println(workspaces);
+        if(workspaces.equals("EMPTY")){
+            output.println(workspaces);
+            return;
+        }
+
+        String[] workspacesWithUser = new String[workspaces.split("\n").length];
+        String[] allWorkspaces = workspaces.split("\n");
+        for(int i = 0; i < workspacesWithUser.length; i++){
+            if(Workspaces.hasCollaborator(allWorkspaces[i], username)){
+                workspacesWithUser[i] = allWorkspaces[i].split(":")[0];
             }
         }
-        output.println("EOF - LW");
+
+        System.out.println("{ " + String.join(" ; ", workspacesWithUser) + " }");
+        output.println("{ " + String.join(" ; ", workspacesWithUser) + " }");
     }
 
 
@@ -226,8 +236,18 @@ public class OperationExecutioner {
     public static void ls(String arguments) throws IOException {
         String username = arguments.split(" ")[1];
         String workspace = arguments.split(" ")[2];
-        output.println(Workspaces.getAllFilesNames(username, workspace));
-        output.println("EOF");
+
+        String filesInWorkspace = Workspaces.getAllFilesNames(username, workspace);
+        if(filesInWorkspace.equals("EMPTY")){
+            output.println(filesInWorkspace);
+            return;
+        }
+
+        output.println("{ " + filesInWorkspace.replaceAll("\n", " ; ") + " }");
+
+        // output.println(Workspaces.getAllFilesNames(username, workspace));
+
+
     }
 
 }

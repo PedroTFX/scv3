@@ -196,14 +196,7 @@ class Menu{
     // LW # Lista os workspaces associados ao utilizador.
     public static void lw(String username)  throws IOException{
         output.println("LW " + username);
-        String line = "";
-        String workspaces = "{ ";
-        while(!(line = input.readLine()).equals("EOF - LW")){
-            workspaces += line + " ; ";
-        }
-        workspaces = workspaces.substring(0, workspaces.length() - 2);
-        workspaces += "}";
-        System.out.println(workspaces);
+        System.out.println(input.readLine());
     }
 
     //  LS <ws> # Lista os ficheiros dentro de um workspace.
@@ -214,20 +207,7 @@ class Menu{
             return;
         }
         output.println("LS" + " " + username + " " + arguments);
-        String line = "";
-        String files = "{ ";
-        while(!(line = input.readLine()).equals("EOF")){
-            if (line == "NOPERM" || line == "NOWS"){
-                System.out.println(line);
-                return;
-            }
-            else{
-                files += line + " ; ";
-            }
-        }
-        files = files.substring(0, files.length() - 2);
-        files += "}";
-        System.out.println(files);
+        System.out.println(input.readLine());
     }
 
     

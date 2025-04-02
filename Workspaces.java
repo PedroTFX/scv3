@@ -72,7 +72,7 @@ class Workspaces{
                 folderNames += folder.getName() + "\n";
             }
         }
-        return folderNames.substring(0, folderNames.length() - 1);
+        return folderNames.length() > 0 ? folderNames.substring(0, folderNames.length() - 1) : "EMPTY";
     }
 
     public static String getAllFilesNames(String User, String workspaceName){
