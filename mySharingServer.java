@@ -5,7 +5,19 @@ public class mySharingServer {
     private static final int PORT = 12345;
 
     public static void main(String[] args) {
-        int port = args.length > 0 ? Integer.parseInt(args[0]) : PORT;
+        String password;
+        int port;
+        try{
+            port = args.length > 0 ? Integer.parseInt(args[0]) : PORT;
+            password = args[1];
+            
+        }catch(NumberFormatException e){
+            port = PORT;
+            password = args[0];
+        }
+        if(!MACChecker.checkMACs(password)){
+            return;
+        }
         server(port);
     }
 
