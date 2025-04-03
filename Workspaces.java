@@ -39,13 +39,14 @@ class Workspaces{
         if(fileName.equals("")){
             return "NOWS";
         }
-        if(!fileName.split(">")[0].contains(User)){
+        if(!fileName.split(">")[0].split(":")[1].equals(User)){
             return "NOPERMS";
         }
 
-        // if the collaborator is already in the workspace
-        if(fileName.split(">")[1].contains(collaborator)){
-            return "OK";
+        for(String s : fileName.split(">")[1].split(",")) {
+            if (s.equals(collaborator)) {
+                return "OK";
+            }
         }
 
         // find the workspace folder and add the collaborator

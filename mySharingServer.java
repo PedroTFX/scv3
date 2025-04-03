@@ -7,6 +7,11 @@ public class mySharingServer {
     public static void main(String[] args) {
         String password;
         int port;
+
+        if (args.length < 1) {
+            System.out.println("Usage: java mySharingServer <port> <password>");
+            return;
+        }
         try{
             port = args.length > 0 ? Integer.parseInt(args[0]) : PORT;
             password = args[1];
