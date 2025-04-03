@@ -20,7 +20,7 @@ public class mySharingServer {
             port = PORT;
             password = args[0];
         }
-        if(!MACChecker.checkMACs(password)){
+        if(!MACChecker.allCheckMACs(password)){
             return;
         }
         server(port);
