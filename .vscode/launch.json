@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Authentication",
+            "request": "launch",
+            "mainClass": "Authentication",
+            "projectName": "scv3_c9ba4b66"
+        },
+        {
+            "type": "java",
+            "name": "Workspaces",
+            "request": "launch",
+            "mainClass": "Workspaces",
+            "projectName": "scv3_c9ba4b66"
+        },
+        {
+            "type": "java",
+            "name": "mySharingClient",
+            "request": "launch",
+            "mainClass": "mySharingClient",
+            "projectName": "scv3_c9ba4b66"
+        },
+        {
+            "type": "java",
+            "name": "mySharingServer",
+            "request": "launch",
+            "mainClass": "mySharingServer",
+            "projectName": "scv3_c9ba4b66"
+        }
+    ]
+}
