@@ -3,24 +3,24 @@ import java.net.*;
 
 public class mySharingServer {
     private static final int PORT = 12345;
+    private static String mac_password;
 
-    public static void main(String[] args) {
-        String password;
+    public static void main(String[] args) throws Exception {
         int port;
 
         if (args.length < 1) {
-            System.out.println("Usage: java mySharingServer <port> <password>");
+            System.out.println("Usage: java mySharingServer <port> <mac_password>");
             return;
         }
         try{
             port = args.length > 0 ? Integer.parseInt(args[0]) : PORT;
-            password = args[1];
+            mac_password = args[1];
             
         }catch(NumberFormatException e){
             port = PORT;
-            password = args[0];
+            mac_password = args[0];
         }
-        if(!MACChecker.allCheckMACs(password)){
+        if(!MACChecker.allCheckMACs(mac_password)){
             return;
         }
         server(port);
@@ -35,7 +35,7 @@ public class mySharingServer {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected");
                 
-                ClientHandler clientHandler = new ClientHandler(clientSocket);
+                ClientHandler clientHandler = new ClientHandler(clientSocket, mac_password);
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {
@@ -46,32 +46,34 @@ public class mySharingServer {
 
 class ClientHandler implements Runnable {
     private Socket clientSocket;
+    private String mac_password;
 
-    public ClientHandler(Socket socket) {
+    public ClientHandler(Socket socket, String mac_password) {
         this.clientSocket = socket;
+        this.mac_password = mac_password;
     }
 
     @Override
     public void run() {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-             InputStream inStream = clientSocket.getInputStream();
-             OutputStream outStream = clientSocket.getOutputStream()) {
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            InputStream inStream = clientSocket.getInputStream();
+            OutputStream outStream = clientSocket.getOutputStream()) {
 
             String user_password = in.readLine();
             String[] user_pass = user_password.split(" ");
             out.println(Authentication.auth(user_pass[0], user_pass[1]));
 
             String message;
-            // System.out.println("waiting for message");
-            // System.out.println(in.readLine());
             while ((message = in.readLine()) != null) {
                 System.out.println("Message received: " + message);
-                OperationExecutioner.execute(message, out, in, inStream, outStream);
+                OperationExecutioner.execute(message, out, in, inStream, outStream, mac_password);
             }
 
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch(Exception e){
             e.printStackTrace();
         } finally {
             try {

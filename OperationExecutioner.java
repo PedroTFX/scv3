@@ -18,10 +18,10 @@ public class OperationExecutioner {
     public static BufferedReader input;
     public static InputStream inStream;
     public static OutputStream outStream;
+    public static String password;
 
-
-    public static void execute(String operation, PrintWriter out, BufferedReader in, InputStream is, OutputStream os) throws IOException {
-        
+    public static void execute(String operation, PrintWriter out, BufferedReader in, InputStream is, OutputStream os, String pass) throws Exception {
+        password = pass;
         output = out;
         input = in;
         inStream = is;
@@ -88,7 +88,7 @@ public class OperationExecutioner {
 
 
     // UP <ws> <file1> ... <filen> # Adicionar ficheiros ao workspace.
-    public static void up(String arguments) throws IOException {
+    public static void up(String arguments) throws Exception {
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         String[] parts = arguments.split(" ");
         if (parts.length < 1) {
@@ -115,6 +115,7 @@ public class OperationExecutioner {
             System.out.println("File: " + parts[i]);
             if(fileCoordenator.receive_file("workspaces/" + file_path)){
                 output.println("OK");
+                MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i], password);
                 System.out.println("File: " + parts[i] + " received");
             }else{
                 System.out.println("ERROR");
@@ -173,7 +174,7 @@ public class OperationExecutioner {
 
 
     // RM <ws> <file1> ... <filen> # Apagar ficheiros do workspace.
-    public static void rm(String arguments) throws IOException {
+    public static void rm(String arguments) throws Exception {
         String[] parts = arguments.split(" ");
         if (parts.length < 2) {
             System.out.println("Invalid number of arguments");
@@ -199,13 +200,11 @@ public class OperationExecutioner {
             System.out.print("File: " + parts[i] + " ");
             if(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i])){
                 output.println(parts[i] + ": APAGADO");
+                MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i], password);
             }else{
                 output.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
             }
-            // output.println(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i]));
         }
-        // output.println();
-        // output.println("RM " + username + " " + arguments);
     }
 
 

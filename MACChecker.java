@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 
 import javax.crypto.Mac;
@@ -19,24 +20,33 @@ public class MACChecker {
     // compare the values with the values of the files users.txt
     // and all workspaces
     public static boolean checkMAC(String pathToFile, String password) throws Exception{
+        // System.out.println("checkMAC");
         String fileName = Paths.get(pathToFile).getFileName().toString();
-        System.out.println("fileName: " + fileName);
         String newMAC = generateMAC(pathToFile, generateAESKeyFromPassword(password, password.getBytes()).toString());
 
         // read the MAC file
-        // System.out.println("pathToFile: " + pathToFile);
-        // System.out.println("fileName: " + fileName);
-        // System.out.println("macs/" + pathToFile.substring(0, pathToFile.length() - fileName.length() - 1));
-        File directory = new File("macs/" + pathToFile.substring(0, pathToFile.length() - fileName.length() - 1));
+        
+        
+        
+        String workspace = "";
+        if(pathToFile.contains("workspaces")){
+            workspace = "workspaces/" + Workspaces.findWorkspace(pathToFile.split("/")[1].split(":")[0]);
+        }
+        
+        File directory = new File("macs/" + workspace);
         File[] files_in_dir = directory.listFiles();
         File matchingFile = null;
+        if(files_in_dir == null) {
+            System.out.println("No MAC files found in directory: " + directory.getAbsolutePath());
+            return false;
+        }
         for(File file : files_in_dir) {
-            // System.out.println("file: " + file.getName());
             if (!file.isDirectory() && file.getName().split("\\.")[0].equals(fileName.split("\\.")[0])) {
                 matchingFile = file;
                 break; // Exit the loop once we find a matching file
             }
         }
+
 
         // check if the file is null
         if (matchingFile == null) {
@@ -57,15 +67,9 @@ public class MACChecker {
     }
 
     public static String generateMAC(String filePath, String secretKey) throws Exception {
+        // System.out.println("generateMAC");
+
         byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
-
-        // System.out.println("filePath: " + filePath);
-        // System.out.println(Paths.get(filePath).getFileName().toString());
-
-        // test with print
-        // System.out.println("filePath: " + filePath);
-        // System.out.println("fileContent: " + new String(fileContent));
-
         Mac mac = Mac.getInstance("HmacSHA256");
         SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
         mac.init(keySpec);
@@ -81,14 +85,14 @@ public class MACChecker {
             return removeMAC(filePath, password);
         }
 
+        
+
         // Generate new MAC for the file
         String newMAC = generateMAC(filePath, generateAESKeyFromPassword(password, password.getBytes()).toString());
     
         // Extract file and workspace information
         String file = filePath.split("/")[filePath.split("/").length - 1];
         String workspace = filePath.substring(0, filePath.length() - file.length() - 1);
-        // System.out.println("workspace: " + workspace);
-        // System.out.println("file: " + file);
     
         // Create the MAC file
         File macFile = new File("macs/" + workspace + "/" + file.split("\\.")[0] + ".mac");
@@ -115,7 +119,9 @@ public class MACChecker {
         }
     
         // Write the new MAC to the file
-        Files.write(macFile.toPath(), newMAC.getBytes());
+        System.out.println("Writing new MAC to file: " + macFile.getAbsolutePath());
+        System.out.println("newMAC: " + newMAC);
+        Files.write(macFile.toPath(), newMAC.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         return true;
     }
 
@@ -123,26 +129,11 @@ public class MACChecker {
         // Extract file and workspace information
         String file = filePath.split("/")[filePath.split("/").length - 1];
         String workspace = filePath.substring(0, filePath.length() - file.length() - 1);
-        // System.out.println("workspace: " + workspace);
-        // System.out.println("file: " + file);
+
 
         // Create the MAC file
         File macFile = new File("macs/" + workspace + "/" + file.split("\\.")[0] + ".mac");
-        return macFile.exists() && macFile.delete();
-    }
-
-    public static File getMACFile(String pathToFile) {
-        // Get the MAC file for the given pathToFile
-        File directory = new File("macs/");
-        File[] files_in_dir = directory.listFiles();
-        File matchingFile = null;
-        for(File file : files_in_dir) {
-            if (!file.isDirectory() && file.getName().split("\\.")[0].equals(pathToFile.split("\\.")[0])) {
-                matchingFile = file;
-                break; // Exit the loop once we find a matching file
-            }
-        }
-        return matchingFile;
+        return macFile.exists() ? macFile.delete() : true;
     }
 
     public static boolean hasMACChanged(){
@@ -162,40 +153,44 @@ public class MACChecker {
     }
 
 
-	public static boolean allCheckMACs(String password) {
+	public static boolean allCheckMACs(String password) throws Exception {
 		// check users.txt
-        try {
-            if (!checkMAC("users.txt", password)) {
+        if (!checkMAC("users.txt", password)) {
+            return false;
+        }
+        
+        // check all files in workspaces
+        File workspaces = new File("workspaces/");
+        File macs = new File("macs/workspaces/");
+
+        File[] workspaces_dir = workspaces.listFiles();
+        File[] macs_dir = macs.listFiles();
+
+        if(workspaces_dir.length != macs_dir.length){
+            System.err.println("Error: DifNumberOfMacsAndDir");
+            return false;
+        }
+
+        if(workspaces_dir.length == 0){
+            System.out.println("Pass, server empty");
+            return true;
+        }
+
+        for(int i = 0; i < workspaces_dir.length; i++){
+            File[] workspace = new File(workspaces_dir[i].getAbsolutePath()).listFiles();
+            File[] mac = new File(macs_dir[i].getAbsolutePath()).listFiles();
+            if(workspace.length != mac.length){
                 return false;
             }
-        } catch (Exception e) {
-            System.out.println("Error checking users.txt MAC: " + e.getMessage());
-            return false;
-        }
-        // check all files in workspaces
-        File directory = new File("workspaces/");
-        File[] files_in_dir = directory.listFiles();
-        if (files_in_dir == null) {
-            System.out.println("No workspaces found.");
-            return false;
-        }
-        for (File file : files_in_dir) {
-            if (file.isDirectory()) {
-                File[] files_in_workspace = file.listFiles();
-                if (files_in_workspace != null) {
-                    for (File workspaceFile : files_in_workspace) {
-                        try {
-                            if (!checkMAC(workspaceFile.getAbsolutePath(), password)) {
-                                return false;
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Error checking " + workspaceFile.getName() + " MAC: " + e.getMessage());
-                            return false;
-                        }
-                    }
+
+            for(int file = 0; file < workspace.length; file++){
+                System.out.println("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName());
+                if(!checkMAC("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName(), password)){
+                    return false;
                 }
             }
         }
+
         return true;
 	}
 
@@ -208,13 +203,52 @@ public class MACChecker {
         // System.out.println(checkMAC("users.txt", "users.txt"));     //true
         // System.out.println(allCheckMACs("users.txt"));              //false
         // System.out.println(updateMAC("workspaces/UGA:admin>admin,user1/uga.txt", "users.txt"));     //true
-        // System.out.println(allCheckMACs("users.txt"));              //true
+        // System.out.println(updateMAC("workspaces/UGA:admin>admin,user1/test.txt", "users.txt"));     //true
+        // System.out.println(updateMAC("workspaces/UGA:admin>admin,user1/users.txt", "users.txt"));
+        System.out.println(allCheckMACs("users.txt"));              //true
         
+        System.out.println(updateMAC("workspaces/room:admin>admin/users.txt", "users.txt"));
+        System.out.println(updateMAC("workspaces/room:admin>admin/test.txt", "users.txt"));
+        System.out.println(updateMAC("workspaces/room:admin>admin/runner.sh", "users.txt"));
+
+        // System.out.println(allCheckMACs("users.txt"));
+        // System.out.println(checkMAC("users.txt", "users.txt"));
         // System.out.println("checkMac: " + checkMAC("workspaces/UGA:admin>admin,user1/uga.txt", "users.txt")); // true
-        System.out.println("updateMac: " + updateMAC("workspaces/UGA:admin>admin,user1/uga.txt", "users.txt")); // true
+        // System.out.println("updateMac: " + updateMAC("workspaces/UGA:admin>admin,user1/uga.txt", "users.txt")); // true
         // System.out.println("checkMac: " + checkMAC("workspaces/UGA:admin>admin,user1/uga.txt", "users.txt")); // true
-        
+        // System.out.println("checkAllMacs: " + allCheckMACs("users.txt")); // true
         // System.out.println(generateMAC("workspaces/" + Workspaces.findWorkspace("UGA") + "/uga.txt", "users.txt"));
         // System.out.println(updateMAC("workspaces/" + Workspaces.findWorkspace("UGA") + "/uga.txt", "users.txt"));
+
+        // String password = "users.txt";
+
+        // // TESTS
+        // // no workspaces just users.txt
+        // System.out.println(allCheckMACs(password));                             // true
+
+        // // empty workspace
+        // // add new workspace
+        // File file = new File("workspaces/test");
+        // System.out.println(file.mkdir());                                      //true
+        // // file.mkdir();
+        // System.out.println(allCheckMACs(password));                            // true
+        // System.out.println(updateMAC("workspaces/test", password));           // true
+        // System.out.println(allCheckMACs(password));                            // true
+
+        // // add new file to workspace
+        // File file2 = new File("workspaces/test/test.txt");
+        // file2.createNewFile();
+        // System.out.println(allCheckMACs(password));                            // false
+        // System.out.println(updateMAC("workspaces/test/test.txt", password));
+        // System.out.println(allCheckMACs(password));                            // true
+
+        // // remove file from workspace
+        // file2.delete();
+        // System.out.println(allCheckMACs(password));                            // false
+        // System.out.println(updateMAC("workspaces/test/test.txt", password));
+        // System.out.println(allCheckMACs(password));                            // true
+
+
+
     }   
 }

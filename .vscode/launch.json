@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MACChecker",
+            "request": "launch",
+            "mainClass": "MACChecker",
+            "projectName": "scv3_c9ba4b66"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"
