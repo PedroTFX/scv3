@@ -66,14 +66,37 @@ public class MACChecker {
         return true;
     }
 
-    public static String generateMAC(String filePath, String secretKey) throws Exception {
-        // System.out.println("generateMAC");
+    // assumes there are no workspaces with the same name
+    public static boolean createMacWorkspace(String Owner, String workspaceName){
+        File mac_file = new File("macs/workspaces/" + workspaceName + ":" + Owner + ">" + Owner);
+        return mac_file.mkdirs();
+    }
 
+    // assumes that full permissions and workspace exists
+    public static boolean addCollaboratorToMacWorkspace(String user, String collaborator, String workspace){
+        String fileName = Workspaces.findWorkspace(workspace);
+
+        // avoid duplicates
+        for(String s : fileName.split(">")[1].split(",")) {
+            if (s.equals(collaborator)) {
+                return true;
+            }
+        }
+
+        File mac_file = new File("macs/workspaces/" + fileName);
+        File mac_renamed = new File("macs/workspaces/" + fileName + "," + collaborator);
+        return mac_file.renameTo(mac_renamed);
+    }
+
+
+    public static String generateMAC(String filePath, String secretKey) throws Exception {
+        // generate key with SHA256
         byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
         Mac mac = Mac.getInstance("HmacSHA256");
         SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
         mac.init(keySpec);
 
+        //encode file content
         byte[] macBytes = mac.doFinal(fileContent);
         return Base64.getEncoder().encodeToString(macBytes); // Convert to Base64 for storage
     }
@@ -84,8 +107,6 @@ public class MACChecker {
             System.out.println("File does not exist: <" + filePath + ">, .mac to be deleted.");
             return removeMAC(filePath, password);
         }
-
-        
 
         // Generate new MAC for the file
         String newMAC = generateMAC(filePath, generateAESKeyFromPassword(password, password.getBytes()).toString());

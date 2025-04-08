@@ -62,7 +62,22 @@ class ClientHandler implements Runnable {
 
             String user_password = in.readLine();
             String[] user_pass = user_password.split(" ");
-            out.println(Authentication.auth(user_pass[0], user_pass[1]));
+
+            String authentication_result = Authentication.auth(user_pass[0], user_pass[1]);
+
+            // create user's first workspace
+            if(authentication_result.equals("OK-NEW-USER")){
+                int numberOfWorkspace = 0;
+                String workspace = "workspace";
+                while(Workspaces.findWorkspace(workspace + numberOfWorkspace) != ""){
+                    numberOfWorkspace++;
+                }
+                Workspaces.create(user_pass[0], workspace + numberOfWorkspace);
+            }
+
+            out.println(authentication_result);
+
+            // TODO: how is there no bug for wrong password??
 
             String message;
             while ((message = in.readLine()) != null) {

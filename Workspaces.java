@@ -9,9 +9,8 @@ class Workspaces{
         if(existsWorkspace(workspaceName)){
             return "NOK";
         }
-        File mac_file = new File("macs/workspaces/" + workspaceName + ":" + Owner + ">" + Owner);
         File file = new File("workspaces/" + workspaceName +":"+ Owner + ">" + Owner);
-        return file.mkdir() && mac_file.mkdir() ? "OK" : "NOK";
+        return file.mkdir() ? "OK" : "NOK";
     }
 
     public static boolean existsWorkspace(String workspaceName){
@@ -52,10 +51,8 @@ class Workspaces{
 
         // find the workspace folder and add the collaborator
         File file = new File("workspaces/" + fileName);
-        File mac_file = new File("macs/workspaces/" + fileName);
         File file_renamed = new File("workspaces/" + fileName + "," + collaborator);
-        File mac_renamed = new File("macs/workspaces/" + fileName + "," + collaborator);
-        return (file.renameTo(file_renamed) && mac_file.renameTo(mac_renamed)) ? "OK" : "ERR";
+        return file.renameTo(file_renamed) ? "OK" : "ERR";
 
     }
 

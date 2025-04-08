@@ -65,8 +65,14 @@ public class OperationExecutioner {
 
         String username = arguments.split(" ")[1];
         String workspaceName = arguments.split(" ")[2];
+        
+        // return routine
+        String result = Workspaces.create(username, workspaceName);
+        if(result.equals("OK")){
+            System.out.println("createWorkspace_MAC: " + MACChecker.createMacWorkspace(username, workspaceName));
+        }
 
-        output.println(Workspaces.create(username, workspaceName));
+        output.println(result);
     }
 
 
@@ -83,7 +89,13 @@ public class OperationExecutioner {
         String collaborator = arguments.split(" ")[2];
         String workspaceName = arguments.split(" ")[3];
         
-        output.println(Workspaces.addCollaborator(username, collaborator, workspaceName));
+        // return routine
+        String result = Workspaces.addCollaborator(username, collaborator, workspaceName);
+        if(result.equals("OK")){
+            System.out.println("addCollaborator_MAC: " + MACChecker.addCollaboratorToMacWorkspace(username, collaborator, workspaceName));
+        }
+
+        output.println(result);
     }
 
 
