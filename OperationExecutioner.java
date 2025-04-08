@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -230,11 +231,11 @@ public class OperationExecutioner {
             return;
         }
 
-        String[] workspacesWithUser = new String[workspaces.split("\n").length];
+        ArrayList<String> workspacesWithUser = new ArrayList<String>();
         String[] allWorkspaces = workspaces.split("\n");
-        for(int i = 0; i < workspacesWithUser.length; i++){
+        for(int i = 0; i < allWorkspaces.length; i++){
             if(Workspaces.hasCollaborator(allWorkspaces[i], username)){
-                workspacesWithUser[i] = allWorkspaces[i].split(":")[0];
+                workspacesWithUser.add(allWorkspaces[i].split(":")[0]);
             }
         }
 

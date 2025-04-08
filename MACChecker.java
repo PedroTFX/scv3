@@ -117,7 +117,9 @@ public class MACChecker {
     
         // Create the MAC file
         File macFile = new File("macs/" + workspace + "/" + file.split("\\.")[0] + ".mac");
-    
+        if(workspace.equals(".")){
+            macFile = new File("macs/" + file.split("\\.")[0] + ".mac");
+        }
         // Ensure the parent directories exist
         File parentDir = macFile.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
@@ -201,6 +203,7 @@ public class MACChecker {
             File[] workspace = new File(workspaces_dir[i].getAbsolutePath()).listFiles();
             File[] mac = new File(macs_dir[i].getAbsolutePath()).listFiles();
             if(workspace.length != mac.length){
+                System.err.println("Workspaces and Mac Workspaces dont match: " + workspace.length + " != " + mac.length);
                 return false;
             }
 
@@ -226,11 +229,11 @@ public class MACChecker {
         // System.out.println(updateMAC("workspaces/UGA:admin>admin,user1/uga.txt", "users.txt"));     //true
         // System.out.println(updateMAC("workspaces/UGA:admin>admin,user1/test.txt", "users.txt"));     //true
         // System.out.println(updateMAC("workspaces/UGA:admin>admin,user1/users.txt", "users.txt"));
-        System.out.println(allCheckMACs("users.txt"));              //true
+        // System.out.println(allCheckMACs("users.txt"));              //true
         
-        System.out.println(updateMAC("workspaces/room:admin>admin/users.txt", "users.txt"));
-        System.out.println(updateMAC("workspaces/room:admin>admin/test.txt", "users.txt"));
-        System.out.println(updateMAC("workspaces/room:admin>admin/runner.sh", "users.txt"));
+        System.out.println(updateMAC("./users.txt", "users.txt"));
+        // System.out.println(updateMAC("workspaces/room:admin>admin/test.txt", "users.txt"));
+        // System.out.println(updateMAC("workspaces/room:admin>admin/runner.sh", "users.txt"));
 
         // System.out.println(allCheckMACs("users.txt"));
         // System.out.println(checkMAC("users.txt", "users.txt"));

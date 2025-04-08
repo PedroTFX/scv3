@@ -110,11 +110,11 @@ public class FileCoordenator {
         long fileSize = dataIn.readLong();
         
 
-        // file already exists
-        while(isFileInFolder(file_to_receive, path)){
-            System.out.println(file_to_receive + " : File already exists file will be renamed to: new_" + file_to_receive);
-            file_to_receive = "new_" + file_to_receive;
-        }
+        // // file already exists
+        // while(isFileInFolder(file_to_receive, path)){
+        //     System.out.println(file_to_receive + " : File already exists file will be renamed to: new_" + file_to_receive);
+        //     file_to_receive = "new_" + file_to_receive;
+        // }
 
         File file = new File(path + "/" + file_to_receive);
 

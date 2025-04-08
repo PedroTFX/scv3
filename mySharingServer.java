@@ -67,17 +67,23 @@ class ClientHandler implements Runnable {
 
             // create user's first workspace
             if(authentication_result.equals("OK-NEW-USER")){
+                MACChecker.updateMAC("./users.txt", mac_password);
                 int numberOfWorkspace = 0;
                 String workspace = "workspace";
                 while(Workspaces.findWorkspace(workspace + numberOfWorkspace) != ""){
                     numberOfWorkspace++;
                 }
-                Workspaces.create(user_pass[0], workspace + numberOfWorkspace);
+                System.out.println("user_pass[0]: " + user_pass[0]);
+                if(Workspaces.create(user_pass[0], workspace + numberOfWorkspace).equals("OK")){
+                    MACChecker.createMacWorkspace(user_pass[0], workspace + numberOfWorkspace);
+                }
             }
 
             out.println(authentication_result);
 
-            // TODO: how is there no bug for wrong password??
+            if(authentication_result.equals("WRONG-PWD")){
+                return;
+            }
 
             String message;
             while ((message = in.readLine()) != null) {
