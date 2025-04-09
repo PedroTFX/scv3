@@ -27,6 +27,7 @@
         "publicas",
         "seguros",
         "servidor",
-        "tendo"
+        "tendo",
+        "truststore"
     ]
 }

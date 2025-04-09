@@ -1,8 +1,11 @@
 import java.io.*;
 import java.net.*;
 
+import javax.net.ssl.*;
+import java.io.*;
+import java.security.KeyStore;
+
 public class mySharingServer {
-    private static final int PORT = 12345;
     private static String mac_password;
 
     public static void main(String[] args) throws Exception {
@@ -12,37 +15,61 @@ public class mySharingServer {
             System.out.println("Usage: java mySharingServer <port> <mac_password>");
             return;
         }
-        try{
-            port = args.length > 0 ? Integer.parseInt(args[0]) : PORT;
+        try {
+            port = args.length > 0 ? Integer.parseInt(args[0]) : 12345;
             mac_password = args[1];
-            
-        }catch(NumberFormatException e){
-            port = PORT;
+        } catch (NumberFormatException e) {
+            port = 12345;
             mac_password = args[0];
         }
-        if(!MACChecker.allCheckMACs(mac_password)){
+
+        if (!MACChecker.allCheckMACs(mac_password)) {
             return;
         }
+
         server(port);
     }
 
-    public static void server(int port){
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
+    public static void server(int port) {
+        try {
+            // Load server keystore
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(new FileInputStream("server.keystore"), "serverkeystore".toCharArray());
+
+            // KeyManager with server's private key
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+            kmf.init(keyStore, "serverkeystore".toCharArray());
+
+            // Load truststore (to trust clients if needed in mutual TLS)
+            KeyStore trustStore = KeyStore.getInstance("JKS");
+            trustStore.load(new FileInputStream("truststore.jks"), "serverkeystore".toCharArray());
+
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+            tmf.init(trustStore);
+
+            // Set up SSL context
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+            SSLServerSocketFactory ssf = sslContext.getServerSocketFactory();
+            SSLServerSocket serverSocket = (SSLServerSocket) ssf.createServerSocket(port);
+            System.out.println("TLS Server is listening on port " + port);
 
             while (true) {
                 System.out.println("Waiting for a new client...");
-                Socket clientSocket = serverSocket.accept();
+                SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
                 System.out.println("New client connected");
-                
+
                 ClientHandler clientHandler = new ClientHandler(clientSocket, mac_password);
                 new Thread(clientHandler).start();
             }
-        } catch (IOException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+
 
 class ClientHandler implements Runnable {
     private Socket clientSocket;
