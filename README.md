@@ -53,3 +53,64 @@ alterado para contemplar a criação de um ficheiro de texto com a chave do work
 
 - Toda  criptografia  assimétrica  no  projeto  deve  usar  <RSA>  com  <chaves  de  2048  bits>.  
 - A criptografia simétrica deve ser efetuada com <AES> e <chaves de 128 bits>. Para as sínteses, deve ser usado um algoritmo seguro.
+
+
+
+
+UPLOAD PROCESS – Step by Step
+1. Client requests to upload a file to a workspace.
+2. Server checks if the user has permission to access the workspace.
+If yes:
+
+The server sends the user’s version of the workspace key, encrypted with their public key.
+
+This file is named: <workspace>.key.<user-id>
+
+3. Client decrypts the workspace key.
+The client uses their private RSA key to decrypt the file and retrieve the AES symmetric key for that workspace.
+
+4. Client signs the original file (before encryption).
+Uses their private RSA key to generate a digital signature of the original file.
+
+The result is saved in:
+
+php-template
+Copy
+Edit
+<filename>.signed.<user-id>
+5. Client encrypts the original file using the workspace AES key.
+The original file is encrypted with AES using the decrypted workspace key.
+
+6. Client uploads both files to the server:
+The encrypted file.
+
+The signature file (.signed.<user-id>).
+
+The server stores both. The server cannot decrypt the file or verify the signature — that’s intentional.
+
+
+
+
+DOWNLOAD PROCESS – Step by Step
+1. Client requests to download a file from a workspace.
+2. Server checks if the user has access to the workspace.
+If yes:
+
+Sends the following files to the client:
+
+The encrypted file.
+
+The signature file (.signed.<user-id>).
+
+The workspace key, encrypted for that user (<ws>.key.<user-id>).
+
+3. Client decrypts the workspace key.
+Uses their private RSA key to decrypt the file and retrieve the AES key.
+
+4. Client decrypts the file using the AES workspace key.
+5. Client verifies the signature.
+Uses the public key of the user who originally signed the file.
+
+Validates the decrypted file against the signature in the .signed.<user-id> file.
+
+If the verification fails, the file has been tampered with.

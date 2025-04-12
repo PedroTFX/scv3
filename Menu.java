@@ -92,6 +92,39 @@ class Menu{
         System.out.println(input.readLine());
     }
 
+
+//    UPLOAD PROCESS – Step by Step
+// 1. Client requests to upload a file to a workspace.
+// 2. Server checks if the user has permission to access the workspace.
+// If yes:
+
+// The server sends the user’s version of the workspace key, encrypted with their public key.
+
+// This file is named: <workspace>.key.<user-id>
+
+// 3. Client decrypts the workspace key.
+// The client uses their private RSA key to decrypt the file and retrieve the AES symmetric key for that workspace.
+
+// 4. Client signs the original file (before encryption).
+// Uses their private RSA key to generate a digital signature of the original file.
+
+// The result is saved in:
+
+// php-template
+// Copy
+// Edit
+// <filename>.signed.<user-id>
+// 5. Client encrypts the original file using the workspace AES key.
+// The original file is encrypted with AES using the decrypted workspace key.
+
+// 6. Client uploads both files to the server:
+// The encrypted file.
+
+// The signature file (.signed.<user-id>).
+
+// The server stores both. The server cannot decrypt the file or verify the signature — that’s intentional.
+
+
     // UP <ws> <file1> ... <filen> # Adicionar ficheiros ao workspace.
     public static void up(String username, String arguments) throws IOException{
         String[] parts = arguments.split(" ");
