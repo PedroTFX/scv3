@@ -108,12 +108,7 @@ class Menu{
 // 4. Client signs the original file (before encryption).
 // Uses their private RSA key to generate a digital signature of the original file.
 
-// The result is saved in:
-
-// php-template
-// Copy
-// Edit
-// <filename>.signed.<user-id>
+// The result is saved in: <filename>.signed.<user-id>
 // 5. Client encrypts the original file using the workspace AES key.
 // The original file is encrypted with AES using the decrypted workspace key.
 

@@ -114,3 +114,11 @@ Uses the public key of the user who originally signed the file.
 Validates the decrypted file against the signature in the .signed.<user-id> file.
 
 If the verification fails, the file has been tampered with.
+
+
+
+
+o workspace é criado, a pass do worksace é criada, e encriptada pela pass do Owner
+
+o user é registado é criado public and private keys, que sao enviadas pata o user, e a public ºe registada no servidor, 
+
