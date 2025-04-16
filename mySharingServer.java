@@ -93,6 +93,9 @@ class ClientHandler implements Runnable {
 
             String authentication_result = Authentication.auth(user_pass[0], user_pass[1]);
 
+            out.println(authentication_result);
+
+
             // create user's first workspace
             if(authentication_result.equals("OK-NEW-USER")){
                 MACChecker.updateMAC("./users.txt", mac_password);
@@ -104,7 +107,9 @@ class ClientHandler implements Runnable {
                 }
 
                 KeyStoreAndCertificates.updateTrustStore(user_pass[0] + ".cer", user_pass[0], "truststore.jks", "serverkeystore");
-                
+                // send truststore to the client
+                fileCoordenator.send_file("truststore.jks");
+
                 int numberOfWorkspace = 0;
                 String workspace = "workspace";
                 while(Workspaces.findWorkspace(workspace + numberOfWorkspace) != ""){
@@ -116,7 +121,6 @@ class ClientHandler implements Runnable {
                 }
             }
 
-            out.println(authentication_result);
 
             if(authentication_result.equals("WRONG-PWD")){
                 return;

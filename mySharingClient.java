@@ -81,6 +81,19 @@ public class mySharingClient {
                     }
                     System.out.println("Truststore received");
                 }
+
+                // receive the server's truststore
+                if(new File("truststore.jks").exists()){
+                    System.out.println("Truststore already exists");
+                }else{
+                    System.out.println("Receiving truststore...");
+                    if(!fileCoordenator.receive_file(".")){
+                        System.out.println("Error receiving truststore");
+                        socket.close();
+                        return;
+                    }
+                    System.out.println("Truststore received");
+                }
             }
 
             // TODO: SEND THE CERTIFICATE TO SERVER AND RECEIVE THE SERVER TRUSTSTORE

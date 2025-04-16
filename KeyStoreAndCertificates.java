@@ -23,7 +23,7 @@ public class KeyStoreAndCertificates {
     public static void generateCertificate(String username){
         try {
             String keystoreName = username + ".keystore.jks";
-            String certFileName = username + "_cert.cer";
+            String certFileName = username + ".cer";
             String alias = "mykey";
             String storepass = username;
             String keypass = username;
@@ -225,6 +225,7 @@ public class KeyStoreAndCertificates {
         String keystorePath = "defaultUser.keystore.jks";
         String keystorePassword = "defaultUser";
 
+        updateTrustStore("defaultUser.cer", "default", "truststore.jks", "serverkeystore");
         System.out.println(signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.sign"));
         System.out.println(verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.sign"));
     }
