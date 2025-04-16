@@ -95,6 +95,7 @@ class ClientHandler implements Runnable {
             // create user's first workspace
             if(authentication_result.equals("OK-NEW-USER")){
                 MACChecker.updateMAC("./users.txt", mac_password);
+                // TODO: RECEIVE THE USER CERTIFICATE AND SAVE IT IN THE TRUST STORE AND SEND IT TO THE CLIENT
                 int numberOfWorkspace = 0;
                 String workspace = "workspace";
                 while(Workspaces.findWorkspace(workspace + numberOfWorkspace) != ""){

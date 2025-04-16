@@ -1,9 +1,7 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import javax.net.ssl.*;
 import java.io.*;
+import java.security.Key;
 import java.security.KeyStore;
 
 public class mySharingClient {
@@ -60,6 +58,12 @@ public class mySharingClient {
                 socket.close();
                 return;
             }
+
+            if(serverResponse.equals("OK-NEW-USER")) {
+                KeyStoreAndCertificates.generateCertificate(username);
+            }
+
+            // TODO: SEND THE CERTIFICATE TO SERVER AND RECEIVE THE SERVER TRUSTSTORE
 
             // Menu
             if (Menu.menu(input, output, socket.getInputStream(), socket.getOutputStream(), username)) {

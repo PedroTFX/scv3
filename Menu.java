@@ -38,6 +38,8 @@ class Menu{
         while(true){
             String input = new Scanner(System.in).nextLine();
 
+            // TODO: FAZER UM ROTINA PARA VERIFICAR SE A TRUSTSTORE ESTA UPDATED COM OS POSSIVEIS NOVOS USERS
+
             // check if there are special characters
             String commandName = input.split(" ")[0];
             String[] arguments = input.split(" ");

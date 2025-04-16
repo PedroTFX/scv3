@@ -30,6 +30,8 @@ public class OperationExecutioner {
         String operationCommand = operation.split(" ")[0];
         System.out.println("Operation: " + operation);
 
+        // TODO: ADICIONA UMA ROTINA QUE EVIA A TRUSTSTORE MAIS RECENTE PARA O USER QND REQUESITADO
+
         switch (operationCommand) {
             case "CREATE":
                 create(operation);
