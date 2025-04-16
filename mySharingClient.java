@@ -61,9 +61,31 @@ public class mySharingClient {
 
             if(serverResponse.equals("OK-NEW-USER")) {
                 KeyStoreAndCertificates.generateCertificate(username);
+
+                FileCoordenator fileCoordenator = new FileCoordenator(input, output, socket.getInputStream(), socket.getOutputStream());
+                if(!fileCoordenator.send_file(username + ".cer")){
+                    System.out.println("Error sending certificate");
+                    socket.close();
+                    return;
+                }
+
+                // receive the server's truststore
+                if(new File("truststore.jks").exists()){
+                    System.out.println("Truststore already exists");
+                }else{
+                    System.out.println("Receiving truststore...");
+                    if(!fileCoordenator.receive_file(".")){
+                        System.out.println("Error receiving truststore");
+                        socket.close();
+                        return;
+                    }
+                    System.out.println("Truststore received");
+                }
             }
 
             // TODO: SEND THE CERTIFICATE TO SERVER AND RECEIVE THE SERVER TRUSTSTORE
+
+
 
             // Menu
             if (Menu.menu(input, output, socket.getInputStream(), socket.getOutputStream(), username)) {

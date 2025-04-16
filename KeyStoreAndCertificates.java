@@ -9,6 +9,7 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.io.IOException;
 
@@ -184,6 +185,37 @@ public class KeyStoreAndCertificates {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static void updateTrustStore(String certFilePath, String alias, String truststorePath, String truststorePassword) {
+        try {
+            // Import the required class directly in the function
+            java.security.cert.Certificate userCert;
+    
+            // Load the truststore
+            KeyStore truststore = KeyStore.getInstance("JKS");
+            try (FileInputStream truststoreStream = new FileInputStream(truststorePath)) {
+                truststore.load(truststoreStream, truststorePassword.toCharArray());
+            }
+    
+            // Load the user's certificate
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            try (FileInputStream certStream = new FileInputStream(certFilePath)) {
+                userCert = certFactory.generateCertificate(certStream);
+    
+                // Add the user's certificate to the truststore
+                truststore.setCertificateEntry(alias, userCert);
+            }
+    
+            // Save the updated truststore
+            try (FileOutputStream truststoreOut = new FileOutputStream(truststorePath)) {
+                truststore.store(truststoreOut, truststorePassword.toCharArray());
+            }
+    
+            System.out.println("Certificate for alias '" + alias + "' added to truststore: " + truststorePath);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

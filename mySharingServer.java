@@ -3,6 +3,7 @@ import java.net.*;
 
 import javax.net.ssl.*;
 import java.io.*;
+import java.security.Key;
 import java.security.KeyStore;
 
 public class mySharingServer {
@@ -96,6 +97,14 @@ class ClientHandler implements Runnable {
             if(authentication_result.equals("OK-NEW-USER")){
                 MACChecker.updateMAC("./users.txt", mac_password);
                 // TODO: RECEIVE THE USER CERTIFICATE AND SAVE IT IN THE TRUST STORE AND SEND IT TO THE CLIENT
+                FileCoordenator fileCoordenator = new FileCoordenator(in, out, inStream, outStream);
+                if(!fileCoordenator.receive_file(".")){
+                    System.out.println("Error receiving certificate");
+                    return;
+                }
+
+                KeyStoreAndCertificates.updateTrustStore(user_pass[0] + ".cer", user_pass[0], "truststore.jks", "serverkeystore");
+                
                 int numberOfWorkspace = 0;
                 String workspace = "workspace";
                 while(Workspaces.findWorkspace(workspace + numberOfWorkspace) != ""){
@@ -133,5 +142,7 @@ class ClientHandler implements Runnable {
             System.out.println("Client disconnected");
         }
     }
+
+
 }
 
