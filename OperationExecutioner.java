@@ -140,7 +140,7 @@ public class OperationExecutioner {
 
 
     // DW <ws> <file1> ... <filen> # Download de ficheiros do workspace para a máquina local.
-    public static void dw(String arguments) throws IOException {
+    public static void dw(String arguments) throws Exception {
         String[] parts = arguments.split(" ");
         if (parts.length < 2) {
             System.out.println("Invalid number of arguments");
@@ -175,6 +175,10 @@ public class OperationExecutioner {
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         for (String file : files_available.split(" ")){
             if(file.equals("")){
+                continue;
+            }
+            if(!MACChecker.checkMAC("workspaces/" + file_path + "/" + file, password)){
+                System.out.println("MAC check failed for file: " + file);
                 continue;
             }
             System.out.println("Sending file: " + file);

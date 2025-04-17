@@ -63,6 +63,7 @@ public class MACChecker {
             System.out.println("MAC values of <" + matchingFile.getName() + "> do not match.");
             return false;
         }
+        System.out.println("MAC values of <" + matchingFile.getName() + "> match.");
         return true;
     }
 
@@ -215,7 +216,7 @@ public class MACChecker {
             }
 
             for(int file = 0; file < workspace.length; file++){
-                System.out.println("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName());
+                // System.out.println("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName());
                 if(!checkMAC("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName(), password)){
                     return false;
                 }

@@ -176,9 +176,9 @@ public class KeyStoreAndCertificates {
             boolean isVerified = signature.verify(signatureBytes);
     
             if (isVerified) {
-                System.out.println("Signature verified successfully.");
+                System.out.println("Signature of " + filePath + "verified successfully.");
             } else {
-                System.out.println("Signature verification failed.");
+                System.out.println("Signature of " + filePath + "verification failed.");
             }
     
             return isVerified;

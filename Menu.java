@@ -219,6 +219,18 @@ class Menu{
             }
         }
 
+        // will always receive both file and signed file due to server logic
+        for (String file: list_files_available) {
+            if(file.contains(".signed." + username)){
+                continue;
+            }
+            String signed_file_name = file + ".signed." + username;
+            String keyStorePath = username + ".keystore.jks";
+            if(!KeyStoreAndCertificates.verifyFile(file, keyStorePath, username, "mykey", signed_file_name)){
+                System.out.println("File: " + file + " was not verified");
+            }
+        }
+
     }
 
     // RM <ws> <file1> ... <filen> # Apagar ficheiros do workspace.
