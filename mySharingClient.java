@@ -70,9 +70,11 @@ public class mySharingClient {
                 }
 
                 // receive the server's truststore
-                if(new File("truststore.jks").exists()){
+                if(new File("truststore.jks").exists()){  //this shit is necessary cause of lazy development environment
                     System.out.println("Truststore already exists");
+                    output.println("TRUSTSTORE-EXISTS");
                 }else{
+                    output.println("TRUSTSTORE-REQUEST");
                     System.out.println("Receiving truststore...");
                     if(!fileCoordenator.receive_file(".")){
                         System.out.println("Error receiving truststore");
@@ -82,18 +84,6 @@ public class mySharingClient {
                     System.out.println("Truststore received");
                 }
 
-                // receive the server's truststore
-                if(new File("truststore.jks").exists()){
-                    System.out.println("Truststore already exists");
-                }else{
-                    System.out.println("Receiving truststore...");
-                    if(!fileCoordenator.receive_file(".")){
-                        System.out.println("Error receiving truststore");
-                        socket.close();
-                        return;
-                    }
-                    System.out.println("Truststore received");
-                }
             }
 
             // TODO: SEND THE CERTIFICATE TO SERVER AND RECEIVE THE SERVER TRUSTSTORE

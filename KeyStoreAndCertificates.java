@@ -220,13 +220,15 @@ public class KeyStoreAndCertificates {
     }
 
     public static void main(String[] args) {
-        generateCertificate(args.length > 0 ? args[0] : "defaultUser");
+        String username = args.length > 0 ? args[0] : "defaultUser";
 
-        String keystorePath = "defaultUser.keystore.jks";
-        String keystorePassword = "defaultUser";
+        generateCertificate(username);
 
-        updateTrustStore("defaultUser.cer", "default", "truststore.jks", "serverkeystore");
-        System.out.println(signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.sign"));
-        System.out.println(verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.sign"));
+        String keystorePath = username + ".keystore.jks";
+        String keystorePassword = username;
+
+        // updateTrustStore("defaultUser.cer", "default", "truststore.jks", "serverkeystore");
+        System.out.println(signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+        System.out.println(verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
     }
 }

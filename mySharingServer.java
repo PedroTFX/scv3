@@ -107,15 +107,29 @@ class ClientHandler implements Runnable {
                 }
 
                 KeyStoreAndCertificates.updateTrustStore(user_pass[0] + ".cer", user_pass[0], "truststore.jks", "serverkeystore");
+                
                 // send truststore to the client
-                fileCoordenator.send_file("truststore.jks");
+                if(in.readLine().equals("TRUSTSTORE-REQUEST")){ //this shit is necessary cause of lazy development environment
+                    System.out.println("Sending truststore...");
+                    if(!fileCoordenator.send_file("truststore.jks")){
+                        System.out.println("Error sending truststore");
+                        return;
+                    }
+                    System.out.println("Truststore sent");
+                }else if(in.readLine().equals("TRUSTSTORE-EXISTS")){
+                    System.out.println("Truststore already exists");
+                }else{
+                    System.out.println("Error receiving truststore request");
+                    return;
+                }
 
                 int numberOfWorkspace = 0;
                 String workspace = "workspace";
                 while(Workspaces.findWorkspace(workspace + numberOfWorkspace) != ""){
                     numberOfWorkspace++;
                 }
-                System.out.println("user_pass[0]: " + user_pass[0]);
+
+                // MAC workspace creating
                 if(Workspaces.create(user_pass[0], workspace + numberOfWorkspace).equals("OK")){
                     MACChecker.createMacWorkspace(user_pass[0], workspace + numberOfWorkspace);
                 }
