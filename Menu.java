@@ -137,10 +137,6 @@ class Menu{
             }
         }
 
-        // make signed files
-
-        // add signed files to the list
-
         // System.out.println("files available: " + files_available);
 
         if(files_available.equals("")){
@@ -150,9 +146,21 @@ class Menu{
             for (int i = 1; i < parts.length; i++){
                 if (!files_available.contains(parts[i])){
                     System.out.println(parts[i] + ": Nao Existe");
+                    continue;
+                }
+
+                // make signed file and add to the list
+                String signed_file_name = parts[i] + ".signed." + username;
+                String keyStorePath = username + ".keystore.jks";
+                // make sign file
+                if(KeyStoreAndCertificates.signFile(parts[i], keyStorePath, username, "mykey", signed_file_name)){
+                    // add to the list
+                    files_available += parts[i] + ".signed." + username + " ";
                 }
             }
         }
+
+
 
         output.println("UP " + username + " " + parts[0] + " " + files_available);
         

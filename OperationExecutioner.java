@@ -156,11 +156,13 @@ public class OperationExecutioner {
 
         String file_path = Workspaces.findWorkspace(workspace);
 
-        // check if files are available
+        // check if files AND signed files are available
         String files_available = "";
         for (int i = 3; i < parts.length; i++){
-            if(FileCoordenator.isFileInFolder(parts[i], "workspaces/" + file_path)){
+            String signed_file = parts[i] + ".signed." + username;
+            if(FileCoordenator.isFileInFolder(parts[i], "workspaces/" + file_path) && FileCoordenator.isFileInFolder(signed_file, "workspaces/" + file_path)){
                 files_available += parts[i] + " ";
+                files_available += signed_file + " ";
             }
         }
 

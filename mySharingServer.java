@@ -99,24 +99,27 @@ class ClientHandler implements Runnable {
             // create user's first workspace
             if(authentication_result.equals("OK-NEW-USER")){
                 MACChecker.updateMAC("./users.txt", mac_password);
-                // TODO: RECEIVE THE USER CERTIFICATE AND SAVE IT IN THE TRUST STORE AND SEND IT TO THE CLIENT
                 FileCoordenator fileCoordenator = new FileCoordenator(in, out, inStream, outStream);
                 if(!fileCoordenator.receive_file(".")){
                     System.out.println("Error receiving certificate");
                     return;
                 }
-
+                System.out.println("Certificate received");
+                
+                // pretty self explanatory: update the truststore with the new user's certificate
                 KeyStoreAndCertificates.updateTrustStore(user_pass[0] + ".cer", user_pass[0], "truststore.jks", "serverkeystore");
                 
                 // send truststore to the client
-                if(in.readLine().equals("TRUSTSTORE-REQUEST")){ //this shit is necessary cause of lazy development environment
+                String truststore_action = in.readLine();
+                System.out.println("Truststore action: " + truststore_action);
+                if(truststore_action.equals("TRUSTSTORE-REQUEST")){ //this shit is necessary cause of lazy development environment
                     System.out.println("Sending truststore...");
                     if(!fileCoordenator.send_file("truststore.jks")){
                         System.out.println("Error sending truststore");
                         return;
                     }
                     System.out.println("Truststore sent");
-                }else if(in.readLine().equals("TRUSTSTORE-EXISTS")){
+                }else if(truststore_action.equals("TRUSTSTORE-EXISTS")){
                     System.out.println("Truststore already exists");
                 }else{
                     System.out.println("Error receiving truststore request");

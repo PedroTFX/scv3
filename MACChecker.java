@@ -41,7 +41,7 @@ public class MACChecker {
             return false;
         }
         for(File file : files_in_dir) {
-            if (!file.isDirectory() && file.getName().split("\\.")[0].equals(fileName.split("\\.")[0])) {
+            if (!file.isDirectory() && file.getName().equals(fileName + ".mac")) {
                 matchingFile = file;
                 break; // Exit the loop once we find a matching file
             }
@@ -103,6 +103,7 @@ public class MACChecker {
 
     public static boolean updateMAC(String filePath, String password) throws Exception {
         // check if the file exists
+        System.out.println("updateMAC: " + filePath);
         if (!new File(filePath).exists()) {
             System.out.println("File does not exist: <" + filePath + ">, .mac to be deleted.");
             return removeMAC(filePath, password);
@@ -116,9 +117,9 @@ public class MACChecker {
         String workspace = filePath.substring(0, filePath.length() - file.length() - 1);
     
         // Create the MAC file
-        File macFile = new File("macs/" + workspace + "/" + file.split("\\.")[0] + ".mac");
+        File macFile = new File("macs/" + workspace + "/" + file + ".mac");
         if(workspace.equals(".")){
-            macFile = new File("macs/" + file.split("\\.")[0] + ".mac");
+            macFile = new File("macs/" + file + ".mac");
         }
         // Ensure the parent directories exist
         File parentDir = macFile.getParentFile();
@@ -203,6 +204,12 @@ public class MACChecker {
             File[] workspace = new File(workspaces_dir[i].getAbsolutePath()).listFiles();
             File[] mac = new File(macs_dir[i].getAbsolutePath()).listFiles();
             if(workspace.length != mac.length){
+                for(int j = 0; j < mac.length; j++){
+                    System.out.println("macs/" + macs_dir[i].getName() + "/" + mac[j].getName());
+                }
+                for(int j = 0; j < workspace.length; j++){
+                    System.out.println("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[j].getName());
+                }
                 System.err.println("Workspaces and Mac Workspaces dont match: " + workspace.length + " != " + mac.length);
                 return false;
             }
@@ -232,6 +239,7 @@ public class MACChecker {
         // System.out.println(allCheckMACs("users.txt"));              //true
         
         System.out.println(updateMAC("./users.txt", "users.txt"));
+        System.out.println(checkMAC("./users.txt", "users.txt"));
         // System.out.println(updateMAC("workspaces/room:admin>admin/test.txt", "users.txt"));
         // System.out.println(updateMAC("workspaces/room:admin>admin/runner.sh", "users.txt"));
 
