@@ -60,42 +60,64 @@ public class OperationExecutioner {
     }
 
     //  CREATE <ws> # Criar um novo workspace - utilizador é Owner.
-    public static void create(String arguments) throws IOException {
-        if (arguments == null || arguments.length() == 0) {
-            System.out.println("Invalid workspace name");
+    public static void create(String arguments) throws Exception {
+        if (arguments == null || arguments.length() == 4) {
+            System.out.println("Invalid number of arguments");
             return;
         }
 
         String username = arguments.split(" ")[1];
         String workspaceName = arguments.split(" ")[2];
+        String password = arguments.split(" ")[3];
         
+        
+
         // return routine
         String result = Workspaces.create(username, workspaceName);
         if(result.equals("OK")){
             System.out.println("createWorkspace_MAC: " + MACChecker.createMacWorkspace(username, workspaceName));
+            
+            // create workspace password
+            byte[] salt_bytes = WorkspacePasswordManager.generateSalt();
+            String workspace_password = WorkspacePasswordManager.generateWorkspacePassword(password, salt_bytes);
+            String key_filename = workspaceName + ".key." + username;
+            String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspaceName);
+            WorkspacePasswordManager.encriptWorkspacePassword(username, workspacePath + "/" + key_filename, workspace_password);
+            
+        
+            // update the MAC for the new user key file
+            MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
         }
-
         output.println(result);
     }
 
 
     // ADD <user1> <ws> # Adicionar utilizador <user1> ao workspace <ws>. 
     // A operação ADD só funciona se o utilizador for o Owner do workspace <ws>.
-    public static void add(String arguments) throws IOException {
+    public static void add(String arguments) throws Exception {
         String[] parts = arguments.split(" ");
         if (parts.length != 4) {
             System.out.println("Invalid number of arguments");
             return;
         }
 
-        String username = arguments.split(" ")[1];
+        String Owner = arguments.split(" ")[1];
         String collaborator = arguments.split(" ")[2];
         String workspaceName = arguments.split(" ")[3];
         
         // return routine
-        String result = Workspaces.addCollaborator(username, collaborator, workspaceName);
+        String result = Workspaces.addCollaborator(Owner, collaborator, workspaceName);
         if(result.equals("OK")){
-            System.out.println("addCollaborator_MAC: " + MACChecker.addCollaboratorToMacWorkspace(username, collaborator, workspaceName));
+            System.out.println("addCollaborator_MAC: " + MACChecker.addCollaboratorToMacWorkspace(Owner, collaborator, workspaceName));
+        
+            // decrypt the workspace password
+            String workspace_password = WorkspacePasswordManager.decriptWorkspacePassword(Owner, workspaceName + ".key." + Owner);
+            String key_filename = workspaceName + ".key." + collaborator;
+            String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspaceName);
+            WorkspacePasswordManager.encriptWorkspacePassword(collaborator, workspacePath + "/" + key_filename, workspace_password);
+
+            // update the MAC for the new user key file
+            MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
         }
 
         output.println(result);
@@ -177,6 +199,8 @@ public class OperationExecutioner {
             if(file.equals("")){
                 continue;
             }
+
+            // file integraty check
             if(!MACChecker.checkMAC("workspaces/" + file_path + "/" + file, password)){
                 System.out.println("MAC check failed for file: " + file);
                 continue;

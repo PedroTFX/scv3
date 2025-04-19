@@ -44,7 +44,7 @@ class Menu{
             String commandName = input.split(" ")[0];
             String[] arguments = input.split(" ");
             
-            if(commandName.equals("CREATE") && arguments.length == 2){
+            if(commandName.equals("CREATE") && arguments.length == 3){
                 String args = input.substring(7);
                 if(args.matches(".*[!@#$%^&*()_+=\\[\\]{};':\"\\\\|,.<>/?].*")){
                     System.out.println("Invalid characters");
