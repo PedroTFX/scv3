@@ -19,7 +19,7 @@ class Menu{
     public static InputStream inStream;
     public static OutputStream outStream;
 
-    public static boolean menu(BufferedReader in, PrintWriter out, InputStream is, OutputStream os, String username) throws IOException{
+    public static boolean menu(BufferedReader in, PrintWriter out, InputStream is, OutputStream os, String username) throws Exception{
         input = in;
         output = out;
         inStream = is;
@@ -123,7 +123,7 @@ class Menu{
 
 
     // UP <ws> <file1> ... <filen> # Adicionar ficheiros ao workspace.
-    public static void up(String username, String arguments) throws IOException{
+    public static void up(String username, String arguments) throws Exception{
         String[] parts = arguments.split(" ");
         
         // check files
@@ -171,15 +171,33 @@ class Menu{
             return;
         }
 
-        // send files
+        // get the workspace key decrypt it
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+
+        String workspace_password;
+
+        if(fileCoordenator.receive_file(".")){
+            workspace_password = WorkspacePasswordManager.decriptWorkspacePassword(username, parts[0] + ".key." + username);
+            if(workspace_password == null){
+                System.out.println("Error decrypting the workspace key");
+                return;
+            }
+        }else{
+            System.out.println("Error receiving the workspace key");
+            return;
+        }
+
+
+        // send files
         for (String file : files_available.split(" ")){
             // send
-            if(fileCoordenator.send_file(file) && input.readLine().equals("OK")){
-                System.out.println(file + ": OK");
-                continue;
-            }else{
-                System.out.println(file + ": ERR");
+            if(WorkspacePasswordManager.encryptFile(workspace_password, file, file + ".enc")){
+                if(fileCoordenator.send_file(file + ".enc") && input.readLine().equals("OK")){
+                    System.out.println(file + ".enc" + ": OK");
+                    continue;
+                }else{
+                    System.out.println(file + ".enc" + ": ERR");
+                }
             }
         }
 

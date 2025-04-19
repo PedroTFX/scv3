@@ -78,11 +78,9 @@ public class OperationExecutioner {
             System.out.println("createWorkspace_MAC: " + MACChecker.createMacWorkspace(username, workspaceName));
             
             // create workspace password
-            byte[] salt_bytes = WorkspacePasswordManager.generateSalt();
-            String workspace_password = WorkspacePasswordManager.generateWorkspacePassword(password, salt_bytes);
             String key_filename = workspaceName + ".key." + username;
             String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspaceName);
-            WorkspacePasswordManager.encriptWorkspacePassword(username, workspacePath + "/" + key_filename, workspace_password);
+            WorkspacePasswordManager.encriptWorkspacePassword(username, workspacePath + "/" + key_filename, password);
             
         
             // update the MAC for the new user key file
@@ -146,6 +144,11 @@ public class OperationExecutioner {
         
 
         String file_path = Workspaces.findWorkspace(workspace);
+
+        // send workspace password of the user
+        fileCoordenator.send_file("workspaces/" + file_path + "/" + workspace + ".key." + user);
+
+        
 
         // receive files
         for (int i = 3; i < parts.length; i++) {
