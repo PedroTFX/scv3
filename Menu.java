@@ -142,25 +142,7 @@ class Menu{
         if(files_available.equals("")){
             System.out.println("No files available");
             return;
-        }else{
-            for (int i = 1; i < parts.length; i++){
-                if (!files_available.contains(parts[i])){
-                    System.out.println(parts[i] + ": Nao Existe");
-                    continue;
-                }
-
-                // make signed file and add to the list
-                String signed_file_name = parts[i] + ".signed." + username;
-                String keyStorePath = username + ".keystore.jks";
-                // make sign file
-                if(KeyStoreAndCertificates.signFile(parts[i], keyStorePath, username, "mykey", signed_file_name)){
-                    // add to the list
-                    files_available += parts[i] + ".signed." + username + " ";
-                }
-            }
         }
-
-
 
         output.println("UP " + username + " " + parts[0] + " " + files_available);
         
@@ -173,7 +155,6 @@ class Menu{
 
         // get the workspace key decrypt it
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
-
         String workspace_password;
 
         if(fileCoordenator.receive_file(".")){
@@ -187,14 +168,23 @@ class Menu{
             return;
         }
 
+        // TODO: AFTER GETTING PASSWORD DELETE THE FILE
+
 
         // send files
         for (String file : files_available.split(" ")){
             // send
+            //TODO: GET BETTER EXTENSION
+            String signed_file_name = file + ".signed." + username;
+            String keyStorePath = username + ".keystore.jks";
             if(WorkspacePasswordManager.encryptFile(workspace_password, file, file + ".enc")){
                 if(fileCoordenator.send_file(file + ".enc") && input.readLine().equals("OK")){
-                    System.out.println(file + ".enc" + ": OK");
-                    continue;
+                    if(KeyStoreAndCertificates.signFile(file, keyStorePath, username, "mykey", signed_file_name) && fileCoordenator.send_file(signed_file_name) && input.readLine().equals("OK")){
+                        System.out.println(file + ": OK");
+                        continue;
+                    }else{
+                        System.out.println(file + ".signed: ERR");
+                    }
                 }else{
                     System.out.println(file + ".enc" + ": ERR");
                 }
@@ -205,7 +195,7 @@ class Menu{
     }
 
     // DW <ws> <file1> ... <filen> # Download de ficheiros do workspace para a máquina local.
-    public static void dw(String username, String arguments) throws IOException{
+    public static void dw(String username, String arguments) throws Exception{
         String[] parts = arguments.split(" ");
         if(parts.length < 2){
             System.out.println("Invalid number of arguments");
@@ -221,30 +211,52 @@ class Menu{
             return;
         }
 
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+        // receive workspace key
+        if(!fileCoordenator.receive_file(".")){
+            System.out.println("Error receiving the workspace key");
+            return;
+        }
+
+        System.out.println(files_available);
         if(files_available.split(" ").length == 0){
             System.out.println("No files available");
             return;
         }
 
-        ArrayList<String> list_files_available = new ArrayList<String>(Arrays.asList(files_available.split(" ")));
-        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+        ArrayList<String> list_files_available = new ArrayList<String>(Arrays.asList(files_available.split(" ")));        
+        String workspace_password = WorkspacePasswordManager.decriptWorkspacePassword(username, parts[0] + ".key." + username);
+        if(workspace_password == null){
+            System.out.println("Error decrypting the workspace key");
+            return;
+        }
+
+        
         for (String file: list_files_available) {
             if(fileCoordenator.receive_file(".")){
                 output.println("OK");
+                if(file.contains(".signed." + username)){
+                    continue;
+                }
+                WorkspacePasswordManager.decryptFile(workspace_password, file, file.substring(0, file.length() - 4));
                 // System.out.println("File: " + file + " received");
             }else{
                 System.out.println("ERR");
             }
         }
 
+        // remove the .enc files
+        
+
         // will always receive both file and signed file due to server logic
         for (String file: list_files_available) {
+            System.out.println("here " + file);
             if(file.contains(".signed." + username)){
                 continue;
             }
-            String signed_file_name = file + ".signed." + username;
+            String signed_file_name = file.substring(0, file.length() - 4) + ".signed." + username;
             String keyStorePath = username + ".keystore.jks";
-            if(!KeyStoreAndCertificates.verifyFile(file, keyStorePath, username, "mykey", signed_file_name)){
+            if(!KeyStoreAndCertificates.verifyFile(file.substring(0, file.length() - 4), keyStorePath, username, "mykey", signed_file_name)){
                 System.out.println("File: " + file + " was not verified");
             }
         }

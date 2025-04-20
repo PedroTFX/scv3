@@ -134,7 +134,15 @@ class ClientHandler implements Runnable {
 
                 // MAC workspace creating
                 if(Workspaces.create(user_pass[0], workspace + numberOfWorkspace).equals("OK")){
-                    MACChecker.createMacWorkspace(user_pass[0], workspace + numberOfWorkspace);
+                    String key_filename = workspace + numberOfWorkspace + ".key." + user_pass[0];
+                    String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspace + numberOfWorkspace);
+                    System.out.println("Workspace path: " + workspacePath);
+                    WorkspacePasswordManager.encriptWorkspacePassword(user_pass[0], workspacePath + "/" + key_filename, "default");
+                    
+                    MACChecker.createMacWorkspace(user_pass[0], workspacePath);
+                
+                    // update the MAC for the new user key file
+                    MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
                 }
             }
 

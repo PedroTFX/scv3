@@ -102,6 +102,7 @@ public class OperationExecutioner {
         String Owner = arguments.split(" ")[1];
         String collaborator = arguments.split(" ")[2];
         String workspaceName = arguments.split(" ")[3];
+        String totalNameWorkspace = Workspaces.findWorkspace(workspaceName);
         
         // return routine
         String result = Workspaces.addCollaborator(Owner, collaborator, workspaceName);
@@ -109,7 +110,7 @@ public class OperationExecutioner {
             System.out.println("addCollaborator_MAC: " + MACChecker.addCollaboratorToMacWorkspace(Owner, collaborator, workspaceName));
         
             // decrypt the workspace password
-            String workspace_password = WorkspacePasswordManager.decriptWorkspacePassword(Owner, workspaceName + ".key." + Owner);
+            String workspace_password = WorkspacePasswordManager.decriptWorkspacePassword(Owner, "workspaces/" + totalNameWorkspace + "," + collaborator + "/" + workspaceName + ".key." + Owner);
             String key_filename = workspaceName + ".key." + collaborator;
             String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspaceName);
             WorkspacePasswordManager.encriptWorkspacePassword(collaborator, workspacePath + "/" + key_filename, workspace_password);
@@ -148,15 +149,24 @@ public class OperationExecutioner {
         // send workspace password of the user
         fileCoordenator.send_file("workspaces/" + file_path + "/" + workspace + ".key." + user);
 
-        
 
+        // TODO: HOLY SHIT THIS EXTENSIONS ARE A PAIN IN THE ASS, COORDENATE WITH UP IN MENU.JAVA
         // receive files
         for (int i = 3; i < parts.length; i++) {
             System.out.println("File: " + parts[i]);
+            // get enc file
             if(fileCoordenator.receive_file("workspaces/" + file_path)){
                 output.println("OK");
-                MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i], password);
+                MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i] + ".enc", password);
                 System.out.println("File: " + parts[i] + " received");
+                
+                // get signed file
+                if(fileCoordenator.receive_file("workspaces/" + file_path)){
+                    output.println("OK");
+                    MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i] + ".signed." + user, password);
+                    System.out.println("File: " + parts[i] + ".signed." + user + " received");
+                }
+
             }else{
                 System.out.println("ERROR");
             }
@@ -180,12 +190,15 @@ public class OperationExecutioner {
         }
 
         String file_path = Workspaces.findWorkspace(workspace);
+        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
 
         // check if files AND signed files are available
         String files_available = "";
         for (int i = 3; i < parts.length; i++){
-            String signed_file = parts[i] + ".signed." + username;
-            if(FileCoordenator.isFileInFolder(parts[i], "workspaces/" + file_path) && FileCoordenator.isFileInFolder(signed_file, "workspaces/" + file_path)){
+            String signed_file = parts[i].substring(0, parts[i].length() - 4) + ".signed." + username;
+            System.out.println(signed_file);
+            System.out.println(parts[i].substring(0, parts[i].length() - 4));
+            if(FileCoordenator.isFileInFolder(parts[i], "workspaces/" + file_path) && FileCoordenator.isFileInFolder(signed_file, "workspaces/" + file_path)){                
                 files_available += parts[i] + " ";
                 files_available += signed_file + " ";
             }
@@ -197,7 +210,15 @@ public class OperationExecutioner {
             return;
         }
 
-        FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
+        // send workspace password of the user
+        String workspace_password_file = "workspaces/" + file_path + "/" + workspace + ".key." + username;
+        System.out.println("Sending workspace password file: " + workspace_password_file);
+        if(!fileCoordenator.send_file(workspace_password_file)){
+            System.out.println("ERROR");
+            return;
+        }
+
+        // FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         for (String file : files_available.split(" ")){
             if(file.equals("")){
                 continue;
@@ -215,8 +236,6 @@ public class OperationExecutioner {
                 System.out.println(file + ": ERR");
             }
         }
-
-        // output.println("EOF");
 
     }
 
