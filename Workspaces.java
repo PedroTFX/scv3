@@ -60,7 +60,7 @@ class Workspaces{
     public static String findWorkspace(String workspaceName){
         File directory = new File("workspaces/");
         // find the workspace folder
-        File[] matchingFolders = directory.listFiles(file -> file.isDirectory() && file.getName().split(":")[0].equals(workspaceName));;
+        File[] matchingFolders = directory.listFiles(file -> file.isDirectory() && file.getName().split(":")[0].equals(workspaceName));
         return matchingFolders != null && matchingFolders.length > 0 ? matchingFolders[0].getName() : "";
     }
 

@@ -75,17 +75,26 @@ public class MACChecker {
 
     // assumes that full permissions and workspace exists
     public static boolean addCollaboratorToMacWorkspace(String user, String collaborator, String workspace){
-        String fileName = Workspaces.findWorkspace(workspace);
+        File directory = new File("macs/workspaces/");
+        // find the workspace folder
+        File[] matchingFolders = directory.listFiles(file -> file.isDirectory() && file.getName().split(":")[0].equals(workspace));
+        String fileName = matchingFolders != null && matchingFolders.length > 0 ? matchingFolders[0].getName() : "";
+    
+        
+        // String fileName = "macs/" + Workspaces.findWorkspace(workspace);
 
         // avoid duplicates
         for(String s : fileName.split(">")[1].split(",")) {
+            System.out.println("Checking " + s + " against " + collaborator);
             if (s.equals(collaborator)) {
+                System.out.println("Already exists: " + s);
                 return true;
             }
         }
 
         File mac_file = new File("macs/workspaces/" + fileName);
         File mac_renamed = new File("macs/workspaces/" + fileName + "," + collaborator);
+        System.out.println("Renaming " + mac_file.getAbsolutePath() + " to " + mac_renamed.getAbsolutePath());
         return mac_file.renameTo(mac_renamed);
     }
 
