@@ -80,9 +80,11 @@ public class OperationExecutioner {
             // create workspace password
             String key_filename = workspaceName + ".key." + username;
             String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspaceName);
-            WorkspacePasswordManager.encriptWorkspacePassword(username, workspacePath + "/" + key_filename, password);
+            if(WorkspacePasswordManager.encriptWorkspacePassword(username, workspacePath + "/" + key_filename, password)){
+                System.out.println("Workspace password encrypted");
+            }
             
-        
+            
             // update the MAC for the new user key file
             MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
         }

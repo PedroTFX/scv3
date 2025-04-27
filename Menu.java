@@ -165,6 +165,7 @@ class Menu{
                 System.out.println("Error decrypting the workspace key");
                 return;
             }
+
         }else{
             System.out.println("Error receiving the workspace key");
             return;
@@ -183,6 +184,14 @@ class Menu{
                 if(fileCoordenator.send_file(file + ".enc") && input.readLine().equals("OK")){
                     if(KeyStoreAndCertificates.signFile(file, keyStorePath, username, "mykey", signed_file_name) && fileCoordenator.send_file(signed_file_name) && input.readLine().equals("OK")){
                         System.out.println(file + ": OK");
+                        try {
+                            File enc_file = new File(file + ".enc");
+                            enc_file.delete();
+                            File signed_file = new File(signed_file_name);
+                            signed_file.delete();
+                        } catch (Exception e) {
+                            System.err.println("Error deleting files: " + e.getMessage());
+                        }
                         continue;
                     }else{
                         System.out.println(file + ".signed: ERR");
