@@ -208,8 +208,14 @@ class Menu{
 
         // check perms
         String files_available = input.readLine();
+        System.out.println("files_available" + files_available);
         if(files_available.equals("NOPERMS") || files_available.equals("NOWS")){
             System.out.println(files_available); // NOPERMS or NOWS
+            return;
+        }
+
+        if(files_available.equals("")){
+            System.out.println("No files available");
             return;
         }
 

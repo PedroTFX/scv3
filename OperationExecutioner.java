@@ -103,7 +103,7 @@ public class OperationExecutioner {
         String collaborator = arguments.split(" ")[2];
         String workspaceName = arguments.split(" ")[3];
         String totalNameWorkspace = Workspaces.findWorkspace(workspaceName);
-        
+
         // return routine
         String result = Workspaces.addCollaborator(Owner, collaborator, workspaceName);
         if(result.equals("OK")){
@@ -195,12 +195,15 @@ public class OperationExecutioner {
         // check if files AND signed files are available
         String files_available = "";
         for (int i = 3; i < parts.length; i++){
-            String signed_file = parts[i].substring(0, parts[i].length() - 4) + ".signed.";
-            System.out.println(signed_file);
-            System.out.println(parts[i].substring(0, parts[i].length() - 4));
-            if(FileCoordenator.isFileInFolder(parts[i], "workspaces/" + file_path) && FileCoordenator.isFileInFolder(signed_file, "workspaces/" + file_path)){                
-                files_available += parts[i] + " ";
+            if(!FileCoordenator.isFileInFolder(parts[i] + ".enc", "workspaces/" + file_path)){
+                continue;
+            }
 
+
+            String signed_file = parts[i] + ".signed.";
+            // System.out.println(signed_file);
+            // System.out.println(parts[i]);
+            if(FileCoordenator.isFileInFolder(signed_file, "workspaces/" + file_path)){                
                 // its guaranteed that the signed file is in the folder
                 File[] files = new File("workspaces/" + file_path + "/").listFiles();
                 for (File file : files) {
@@ -210,11 +213,14 @@ public class OperationExecutioner {
                     }
                 }
 
+
+                files_available += parts[i] + ".enc ";
                 files_available += signed_file + " ";
             }
         }
 
         output.println(files_available);
+        System.out.println("Files available: " + files_available);
         if(files_available.length() == 0){
             System.out.println("No files available");
             return;
@@ -319,7 +325,7 @@ public class OperationExecutioner {
             return;
         }
 
-        output.println("{ " + filesInWorkspace.replaceAll("\n", " ; ") + " }");
+        output.println("{ " + filesInWorkspace.replaceAll("\n", " ; ").replaceAll("\\.enc", "") + " }");
 
         // output.println(Workspaces.getAllFilesNames(username, workspace));
 

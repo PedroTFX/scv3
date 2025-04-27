@@ -150,6 +150,8 @@ class Authentication {
         System.out.println(auth("user1", "user2"));
         System.out.println(auth("user2", "?*`:ªÇ_"));
         System.out.println(auth("user2", "?*`:ªÇ_"));
+
+        System.out.println(existsUser("mercedes"));
     }
 
 }

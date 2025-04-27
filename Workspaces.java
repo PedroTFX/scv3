@@ -43,6 +43,11 @@ class Workspaces{
             return "NOPERMS";
         }
 
+        if(!Authentication.existsUser(collaborator)){
+            return "NOUSER";
+        }
+        // check if the collaborator is already in the workspace
+
         for(String s : fileName.split(">")[1].split(",")) {
             if (s.equals(collaborator)) {
                 return "OK";
