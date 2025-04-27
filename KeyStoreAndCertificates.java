@@ -219,16 +219,66 @@ public class KeyStoreAndCertificates {
         }
     }
 
+    public static PublicKey getPublicKeyFromTruststore(String truststorePath, String truststorePassword, String alias) {
+        try {
+            // Load the truststore
+            KeyStore truststore = KeyStore.getInstance("JKS");
+            try (FileInputStream fis = new FileInputStream(truststorePath)) {
+                truststore.load(fis, truststorePassword.toCharArray());
+            }
+    
+            // Retrieve the certificate for the alias
+            java.security.cert.Certificate certificate = truststore.getCertificate(alias);
+            if (certificate == null) {
+                throw new Exception("Certificate not found for alias: " + alias);
+            }
+    
+            // Return the public key
+            return certificate.getPublicKey();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static boolean verifyFileWithPublicKey(String filePath, PublicKey publicKey, String signatureFilePath) {
+        try {
+            // Read the file to be verified
+            byte[] fileData = Files.readAllBytes(Paths.get(filePath));
+    
+            // Read the signature
+            byte[] signatureBytes = Base64.getDecoder().decode(Files.readAllBytes(Paths.get(signatureFilePath)));
+    
+            // Verify the signature
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initVerify(publicKey);
+            signature.update(fileData);
+            return signature.verify(signatureBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static void main(String[] args) {
         String username = args.length > 0 ? args[0] : "defaultUser";
 
-        generateCertificate(username);
+        // generateCertificate(username);
 
         String keystorePath = username + ".keystore.jks";
         String keystorePassword = username;
 
         // updateTrustStore("defaultUser.cer", "default", "truststore.jks", "serverkeystore");
-        System.out.println(signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
-        System.out.println(verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+        // System.out.println(signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+        // System.out.println(verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+
+
+        System.out.println("Verifying with public key from truststore");
+        PublicKey publicKey = getPublicKeyFromTruststore("truststore.jks", "serverkeystore", "seisletras");
+        if (publicKey != null) {
+            System.out.println(verifyFileWithPublicKey("users.txt", publicKey, "users.txt.signed." + "seisletras"));
+        } else {
+            System.out.println("Failed to retrieve public key from truststore.");
+        }
     }
 }

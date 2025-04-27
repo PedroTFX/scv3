@@ -151,7 +151,7 @@ public class FileCoordenator {
         // System.out.println(files.length);
         if (files != null && files.length > 0) {
             for (File file : files) {
-                if (file.getName().equals(filename)) {
+                if (file.getName().contains(filename)) {
                     return true;
                 }
             }

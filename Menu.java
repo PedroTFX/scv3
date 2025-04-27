@@ -1,8 +1,10 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
+import java.security.PublicKey;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -218,7 +220,7 @@ class Menu{
             return;
         }
 
-        System.out.println(files_available);
+        // System.out.println(files_available);
         if(files_available.split(" ").length == 0){
             System.out.println("No files available");
             return;
@@ -235,7 +237,7 @@ class Menu{
         for (String file: list_files_available) {
             if(fileCoordenator.receive_file(".")){
                 output.println("OK");
-                if(file.contains(".signed." + username)){
+                if(file.contains(".signed.")){
                     continue;
                 }
                 WorkspacePasswordManager.decryptFile(workspace_password, file, file.substring(0, file.length() - 4));
@@ -245,19 +247,43 @@ class Menu{
             }
         }
 
-        // remove the .enc files
-        
-
-        // will always receive both file and signed file due to server logic
-        for (String file: list_files_available) {
-            System.out.println("here " + file);
-            if(file.contains(".signed." + username)){
+        // check the signed files
+        for (String file : list_files_available){
+            if(file.contains(".signed.")){
                 continue;
             }
-            String signed_file_name = file.substring(0, file.length() - 4) + ".signed." + username;
-            String keyStorePath = username + ".keystore.jks";
-            if(!KeyStoreAndCertificates.verifyFile(file.substring(0, file.length() - 4), keyStorePath, username, "mykey", signed_file_name)){
-                System.out.println("File: " + file + " was not verified");
+
+            String decrypted_file = file.substring(0, file.length() - 4);
+            String signed_file = decrypted_file + ".signed.";
+
+            // find signed file in directory
+            File[] files_list = new File(".").listFiles();
+            for (File file1 : files_list){
+                if(file1.getName().contains(signed_file)){
+                    signed_file = file1.getName();
+                    break;
+                }
+            }
+
+            // System.out.println(signed_file);
+            PublicKey publicKey = KeyStoreAndCertificates.getPublicKeyFromTruststore("truststore.jks", "serverkeystore", signed_file.split("\\.signed\\.")[1]);
+            // System.out.println(signed_file.split("\\.signed\\.")[1]);
+            if (publicKey == null || !KeyStoreAndCertificates.verifyFileWithPublicKey(decrypted_file, publicKey, signed_file)) {
+                System.err.println("File: " + decrypted_file + " was not verified");
+                continue;
+            }
+            System.out.println("File: " + decrypted_file + " - OK");
+
+            // delete the signed file
+            // delete the encrypted file
+            try {
+                File enc_file = new File(decrypted_file + ".enc");
+                enc_file.delete();
+
+                File signed_file1 = new File(signed_file);
+                signed_file1.delete();
+            } catch (Exception e) {
+                System.err.println("Error deleting files: " + e.getMessage());
             }
         }
 

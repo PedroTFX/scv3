@@ -195,11 +195,21 @@ public class OperationExecutioner {
         // check if files AND signed files are available
         String files_available = "";
         for (int i = 3; i < parts.length; i++){
-            String signed_file = parts[i].substring(0, parts[i].length() - 4) + ".signed." + username;
+            String signed_file = parts[i].substring(0, parts[i].length() - 4) + ".signed.";
             System.out.println(signed_file);
             System.out.println(parts[i].substring(0, parts[i].length() - 4));
             if(FileCoordenator.isFileInFolder(parts[i], "workspaces/" + file_path) && FileCoordenator.isFileInFolder(signed_file, "workspaces/" + file_path)){                
                 files_available += parts[i] + " ";
+
+                // its guaranteed that the signed file is in the folder
+                File[] files = new File("workspaces/" + file_path + "/").listFiles();
+                for (File file : files) {
+                    if (file.getName().contains(signed_file)) {
+                        signed_file = file.getName();
+                        break;
+                    }
+                }
+
                 files_available += signed_file + " ";
             }
         }
