@@ -85,16 +85,16 @@ public class MACChecker {
 
         // avoid duplicates
         for(String s : fileName.split(">")[1].split(",")) {
-            System.out.println("Checking " + s + " against " + collaborator);
+            System.out.println("MAC: " + "Checking " + s + " against " + collaborator);
             if (s.equals(collaborator)) {
-                System.out.println("Already exists: " + s);
+                System.out.println("MAC: " + "Already exists: " + s);
                 return true;
             }
         }
 
         File mac_file = new File("macs/workspaces/" + fileName);
         File mac_renamed = new File("macs/workspaces/" + fileName + "," + collaborator);
-        System.out.println("Renaming " + mac_file.getAbsolutePath() + " to " + mac_renamed.getAbsolutePath());
+        System.out.println("MAC: " + "Renaming " + mac_file.getAbsolutePath() + " to " + mac_renamed.getAbsolutePath());
         return mac_file.renameTo(mac_renamed);
     }
 
@@ -113,9 +113,9 @@ public class MACChecker {
 
     public static boolean updateMAC(String filePath, String password) throws Exception {
         // check if the file exists
-        System.out.println("updateMAC: " + filePath);
+        System.out.println("MAC: " + "updateMAC: " + filePath);
         if (!new File(filePath).exists()) {
-            System.out.println("File does not exist: <" + filePath + ">, .mac to be deleted.");
+            System.out.println("MAC: " + "File does not exist: <" + filePath + ">, .mac to be deleted.");
             return removeMAC(filePath, password);
         }
 
@@ -135,9 +135,9 @@ public class MACChecker {
         File parentDir = macFile.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
             if (parentDir.mkdirs()) {
-                System.out.println("Directories created: " + parentDir.getAbsolutePath());
+                System.out.println("MAC: " + "Directories created: " + parentDir.getAbsolutePath());
             } else {
-                System.out.println("Failed to create directories: " + parentDir.getAbsolutePath());
+                System.out.println("MAC: " + "Failed to create directories: " + parentDir.getAbsolutePath());
                 return false;
             }
         }
@@ -145,16 +145,16 @@ public class MACChecker {
         // Create the MAC file if it doesn't exist
         if (!macFile.exists()) {
             if (macFile.createNewFile()) {
-                System.out.println("MAC file created: " + macFile.getAbsolutePath());
+                System.out.println("MAC: " + "MAC file created: " + macFile.getAbsolutePath());
             } else {
-                System.out.println("Failed to create MAC file: " + macFile.getAbsolutePath());
+                System.out.println("MAC: " + "Failed to create MAC file: " + macFile.getAbsolutePath());
                 return false;
             }
         }
     
         // Write the new MAC to the file
-        System.out.println("Writing new MAC to file: " + macFile.getAbsolutePath());
-        System.out.println("newMAC: " + newMAC);
+        System.out.println("MAC: " + "Writing new MAC to file: " + macFile.getAbsolutePath());
+        System.out.println("MAC: " + "newMAC: " + newMAC);
         Files.write(macFile.toPath(), newMAC.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         return true;
     }
@@ -201,12 +201,12 @@ public class MACChecker {
         File[] macs_dir = macs.listFiles();
 
         if(workspaces_dir.length != macs_dir.length){
-            System.err.println("Error: DifNumberOfMacsAndDir");
+            System.err.println("MAC: " + "Error: DifNumberOfMacsAndDir");
             return false;
         }
 
         if(workspaces_dir.length == 0){
-            System.out.println("Pass, server empty");
+            System.out.println("MAC: " + "Pass, server empty");
             return true;
         }
 
@@ -215,17 +215,17 @@ public class MACChecker {
             File[] mac = new File(macs_dir[i].getAbsolutePath()).listFiles();
             if(workspace.length != mac.length){
                 for(int j = 0; j < mac.length; j++){
-                    System.out.println("macs/" + macs_dir[i].getName() + "/" + mac[j].getName());
+                    System.out.println("MAC: " + "macs/" + macs_dir[i].getName() + "/" + mac[j].getName());
                 }
                 for(int j = 0; j < workspace.length; j++){
-                    System.out.println("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[j].getName());
+                    System.out.println("MAC: " + "workspaces/" + workspaces_dir[i].getName() + "/" + workspace[j].getName());
                 }
-                System.err.println("Workspaces and Mac Workspaces dont match: " + workspace.length + " != " + mac.length);
+                System.err.println("MAC: " + "Workspaces and Mac Workspaces dont match: " + workspace.length + " != " + mac.length);
                 return false;
             }
 
             for(int file = 0; file < workspace.length; file++){
-                // System.out.println("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName());
+                // System.out.println("MAC: " + "workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName());
                 if(!checkMAC("workspaces/" + workspaces_dir[i].getName() + "/" + workspace[file].getName(), password)){
                     return false;
                 }
@@ -237,7 +237,7 @@ public class MACChecker {
 
 
     public static void main(String[] args) throws Exception {
-        // System.out.println(updateMAC("users.txt", "users.txt"));    //true
+        // System.out.println("MAC: " + updateMAC("users.txt", "users.txt"));    //true
         // System.out.println(updateMAC("test.txt", "users.txt"));     //true
         // System.out.println(checkMAC("test.txt", "users.txt"));      //true
         // System.out.println(checkMAC("test.txt", "uga"));            //false

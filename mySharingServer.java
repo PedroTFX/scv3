@@ -138,13 +138,13 @@ class ClientHandler implements Runnable {
                     String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspace + numberOfWorkspace);
                     System.out.println("Workspace path: " + workspacePath);
                     WorkspacePasswordManager.encriptWorkspacePassword(user_pass[0], workspacePath + "/" + key_filename, "default");
-                    
-
-                    System.out.println("user_pass[0]" + user_pass[0]);
-                    MACChecker.createMacWorkspace(user_pass[0], workspacePath);
-                
-                    // update the MAC for the new user key file
+                                    
+                    // DUE TO THE WAY UPDATE MAC WORKS IT CORRECTS THE MISSING FOLDER MORE CORRECTLY THAN THE CREATE MACKWORKSPACE
                     MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
+
+                    
+                    File file = new File(key_filename);
+                    file.delete();
                 }
             }
 

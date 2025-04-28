@@ -68,7 +68,7 @@ public class WorkspacePasswordManager {
             try (FileWriter fileWriter = new FileWriter(filename)) {
                 fileWriter.write(encryptedPasswordBase64);
             }
-            System.out.println("Workspace password encrypted and saved to: " + filename);
+            System.out.println("WPM: " + "Workspace password encrypted and saved to: " + filename);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,11 +186,11 @@ public class WorkspacePasswordManager {
         byte[] salt_bytes = generateSalt();
         String salt = Base64.getEncoder().encodeToString(salt_bytes);
         // String workspace_password = generateWorkspacePassword("password", salt_bytes);
-        System.out.println(salt);
-        // System.out.println(workspace_password);
+        System.out.println("WPM: " + salt);
+        // System.out.println("WPM: " + workspace_password);
 
-        System.out.println(encriptWorkspacePassword("seisletras", "workspace0.key.seisletras", "password" + ":" + salt));
-        System.out.println(decriptWorkspacePassword("seisletras", "workspace0.key.seisletras"));
+        System.out.println("WPM: " + encriptWorkspacePassword("seisletras", "workspace0.key.seisletras", "password" + ":" + salt));
+        System.out.println("WPM: " + decriptWorkspacePassword("seisletras", "workspace0.key.seisletras"));
 
         encryptFile("password", "test.txt", "test.txt.enc");
         decryptFile("password", "test.txt.enc", "test_dec.txt");

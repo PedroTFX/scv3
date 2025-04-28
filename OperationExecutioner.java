@@ -28,7 +28,7 @@ public class OperationExecutioner {
         inStream = is;
         outStream = os;
         String operationCommand = operation.split(" ")[0];
-        System.out.println("Operation: " + operation);
+        System.out.println("OP: " + "Operation: " + operation);
 
         // TODO: ADICIONA UMA ROTINA QUE EVIA A TRUSTSTORE MAIS RECENTE PARA O USER QND REQUESITADO
 
@@ -55,14 +55,14 @@ public class OperationExecutioner {
                 ls(operation);
                 break;
             default:
-                System.out.println("Invalid operation");
+                System.out.println("OP: " + "Invalid operation");
         }
     }
 
     //  CREATE <ws> # Criar um novo workspace - utilizador é Owner.
     public static void create(String arguments) throws Exception {
         if (arguments == null || arguments.length() == 4) {
-            System.out.println("Invalid number of arguments");
+            System.out.println("OP: " + "Invalid number of arguments");
             return;
         }
 
@@ -75,13 +75,13 @@ public class OperationExecutioner {
         // return routine
         String result = Workspaces.create(username, workspaceName);
         if(result.equals("OK")){
-            System.out.println("createWorkspace_MAC: " + MACChecker.createMacWorkspace(username, workspaceName));
+            System.out.println("OP: " + "createWorkspace_MAC: " + MACChecker.createMacWorkspace(username, workspaceName));
             
             // create workspace password
             String key_filename = workspaceName + ".key." + username;
             String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspaceName);
             if(WorkspacePasswordManager.encriptWorkspacePassword(username, workspacePath + "/" + key_filename, password)){
-                System.out.println("Workspace password encrypted");
+                System.out.println("OP: " + "Workspace password encrypted");
             }
             
             
@@ -97,7 +97,7 @@ public class OperationExecutioner {
     public static void add(String arguments) throws Exception {
         String[] parts = arguments.split(" ");
         if (parts.length != 4) {
-            System.out.println("Invalid number of arguments");
+            System.out.println("OP: " + "Invalid number of arguments");
             return;
         }
 
@@ -109,7 +109,7 @@ public class OperationExecutioner {
         // return routine
         String result = Workspaces.addCollaborator(Owner, collaborator, workspaceName);
         if(result.equals("OK")){
-            System.out.println("addCollaborator_MAC: " + MACChecker.addCollaboratorToMacWorkspace(Owner, collaborator, workspaceName));
+            System.out.println("OP: " + "addCollaborator_MAC: " + MACChecker.addCollaboratorToMacWorkspace(Owner, collaborator, workspaceName));
         
             // decrypt the workspace password
             String workspace_password = WorkspacePasswordManager.decriptWorkspacePassword(Owner, "workspaces/" + totalNameWorkspace + "," + collaborator + "/" + workspaceName + ".key." + Owner);
@@ -130,7 +130,7 @@ public class OperationExecutioner {
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         String[] parts = arguments.split(" ");
         if (parts.length < 1) {
-            System.out.println("Invalid number of arguments");
+            System.out.println("OP: " + "Invalid number of arguments");
             return;
         }
 
@@ -155,22 +155,22 @@ public class OperationExecutioner {
         // TODO: HOLY SHIT THIS EXTENSIONS ARE A PAIN IN THE ASS, COORDENATE WITH UP IN MENU.JAVA
         // receive files
         for (int i = 3; i < parts.length; i++) {
-            System.out.println("File: " + parts[i]);
+            System.out.println("OP: " + "File: " + parts[i]);
             // get enc file
             if(fileCoordenator.receive_file("workspaces/" + file_path)){
                 output.println("OK");
                 MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i] + ".enc", password);
-                System.out.println("File: " + parts[i] + " received");
+                System.out.println("OP: " + "File: " + parts[i] + " received");
                 
                 // get signed file
                 if(fileCoordenator.receive_file("workspaces/" + file_path)){
                     output.println("OK");
                     MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i] + ".signed." + user, password);
-                    System.out.println("File: " + parts[i] + ".signed." + user + " received");
+                    System.out.println("OP: " + "File: " + parts[i] + ".signed." + user + " received");
                 }
 
             }else{
-                System.out.println("ERROR");
+                System.out.println("OP: " + "ERROR");
             }
         }
     }
@@ -180,7 +180,7 @@ public class OperationExecutioner {
     public static void dw(String arguments) throws Exception {
         String[] parts = arguments.split(" ");
         if (parts.length < 2) {
-            System.out.println("Invalid number of arguments");
+            System.out.println("OP: " + "Invalid number of arguments");
             return;
         }
         String username = arguments.split(" ")[1];
@@ -197,14 +197,13 @@ public class OperationExecutioner {
         // check if files AND signed files are available
         String files_available = "";
         for (int i = 3; i < parts.length; i++){
+            // check if file is available
             if(!FileCoordenator.isFileInFolder(parts[i] + ".enc", "workspaces/" + file_path)){
                 continue;
             }
 
-
+            // check if signed file is available
             String signed_file = parts[i] + ".signed.";
-            // System.out.println(signed_file);
-            // System.out.println(parts[i]);
             if(FileCoordenator.isFileInFolder(signed_file, "workspaces/" + file_path)){                
                 // its guaranteed that the signed file is in the folder
                 File[] files = new File("workspaces/" + file_path + "/").listFiles();
@@ -222,17 +221,17 @@ public class OperationExecutioner {
         }
 
         output.println(files_available);
-        System.out.println("Files available: " + files_available);
+        System.out.println("OP: " + "Files available: " + files_available);
         if(files_available.length() == 0){
-            System.out.println("No files available");
+            System.out.println("OP: " + "No files available");
             return;
         }
 
         // send workspace password of the user
         String workspace_password_file = "workspaces/" + file_path + "/" + workspace + ".key." + username;
-        System.out.println("Sending workspace password file: " + workspace_password_file);
+        System.out.println("OP: " + "Sending workspace password file: " + workspace_password_file);
         if(!fileCoordenator.send_file(workspace_password_file)){
-            System.out.println("ERROR");
+            System.out.println("OP: " + "ERROR");
             return;
         }
 
@@ -244,14 +243,14 @@ public class OperationExecutioner {
 
             // file integraty check
             if(!MACChecker.checkMAC("workspaces/" + file_path + "/" + file, password)){
-                System.out.println("MAC check failed for file: " + file);
+                System.out.println("OP: " + "MAC check failed for file: " + file);
                 continue;
             }
-            System.out.println("Sending file: " + file);
+            System.out.println("OP: " + "Sending file: " + file);
             if(fileCoordenator.send_file("workspaces/" + file_path + "/" + file) && input.readLine().equals("OK")){
-                System.out.println(file + ": OK");
+                System.out.println("OP: " + file + ": OK");
             }else{
-                System.out.println(file + ": ERR");
+                System.out.println("OP: " + file + ": ERR");
             }
         }
 
@@ -262,7 +261,7 @@ public class OperationExecutioner {
     public static void rm(String arguments) throws Exception {
         String[] parts = arguments.split(" ");
         if (parts.length < 2) {
-            System.out.println("Invalid number of arguments");
+            System.out.println("OP: " + "Invalid number of arguments");
             return;
         }
         String username = arguments.split(" ")[1];
@@ -282,7 +281,7 @@ public class OperationExecutioner {
         // remove files
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         for (int i = 3; i < parts.length; i++) {
-            System.out.print("File: " + parts[i] + " ");
+            System.out.print("OP: " + "File: " + parts[i] + " ");
             if(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i])){
                 output.println(parts[i] + ": APAGADO");
                 MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i], password);
@@ -297,7 +296,7 @@ public class OperationExecutioner {
     public static void lw(String operation) throws IOException {
         String username = operation.split(" ")[1];
         String workspaces = Workspaces.getAllWorkspaces();
-        System.out.println(workspaces);
+        System.out.println("OP: " + workspaces);
         if(workspaces.equals("EMPTY")){
             output.println(workspaces);
             return;
@@ -311,7 +310,7 @@ public class OperationExecutioner {
             }
         }
 
-        System.out.println("{ " + String.join(" ; ", workspacesWithUser) + " }");
+        System.out.println("OP: " + "{ " + String.join(" ; ", workspacesWithUser) + " }");
         output.println("{ " + String.join(" ; ", workspacesWithUser) + " }");
     }
 

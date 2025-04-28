@@ -56,7 +56,7 @@ public class KeyStoreAndCertificates {
 
             runCommand(exportCert, "Exporting certificate to " + certFileName);
 
-            System.out.println("Keystore and certificate generation completed.");
+            System.out.println("KeyStore: " + "Keystore and certificate generation completed.");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -70,7 +70,7 @@ public class KeyStoreAndCertificates {
      * @throws InterruptedException
      */
     private static void runCommand(ProcessBuilder pb, String action) throws IOException, InterruptedException {
-        System.out.println(action + "...");
+        System.out.println("KeyStore: " + action + "...");
         Process process = pb.start();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -78,17 +78,17 @@ public class KeyStoreAndCertificates {
 
         String line;
         while ((line = reader.readLine()) != null) {
-            System.out.println(line);
+            System.out.println("KeyStore: " + line);
         }
         while ((line = errReader.readLine()) != null) {
-            System.err.println(line);
+            System.err.println("KeyStore: " + line);
         }
 
         int exitCode = process.waitFor();
         if (exitCode == 0) {
-            System.out.println(action + " completed successfully.");
+            System.out.println("KeyStore: " + action + " completed successfully.");
         } else {
-            System.err.println(action + " failed with exit code " + exitCode);
+            System.err.println("KeyStore: " + action + " failed with exit code " + exitCode);
         }
     }
 
@@ -129,7 +129,7 @@ public class KeyStoreAndCertificates {
                 fos.write(Base64.getEncoder().encode(digitalSignature));
             }
 
-            System.out.println("File signed successfully. Signature saved to: " + signatureFilePath);
+            System.out.println("KeyStore: " + "File signed successfully. Signature saved to: " + signatureFilePath);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -176,9 +176,9 @@ public class KeyStoreAndCertificates {
             boolean isVerified = signature.verify(signatureBytes);
     
             if (isVerified) {
-                System.out.println("Signature of " + filePath + "verified successfully.");
+                System.out.println("KeyStore: " + "Signature of " + filePath + "verified successfully.");
             } else {
-                System.out.println("Signature of " + filePath + "verification failed.");
+                System.out.println("KeyStore: " + "Signature of " + filePath + "verification failed.");
             }
     
             return isVerified;
@@ -213,7 +213,7 @@ public class KeyStoreAndCertificates {
                 truststore.store(truststoreOut, truststorePassword.toCharArray());
             }
     
-            System.out.println("Certificate for alias '" + alias + "' added to truststore: " + truststorePath);
+            System.out.println("KeyStore: " + "Certificate for alias '" + alias + "' added to truststore: " + truststorePath);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -269,16 +269,16 @@ public class KeyStoreAndCertificates {
         String keystorePassword = username;
 
         // updateTrustStore("defaultUser.cer", "default", "truststore.jks", "serverkeystore");
-        // System.out.println(signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
-        // System.out.println(verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+        // System.out.println("KeyStore: " + signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+        // System.out.println("KeyStore: " + verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
 
 
-        System.out.println("Verifying with public key from truststore");
+        System.out.println("KeyStore: " + "Verifying with public key from truststore");
         PublicKey publicKey = getPublicKeyFromTruststore("truststore.jks", "serverkeystore", "seisletras");
         if (publicKey != null) {
-            System.out.println(verifyFileWithPublicKey("users.txt", publicKey, "users.txt.signed." + "seisletras"));
+            System.out.println("KeyStore: " + verifyFileWithPublicKey("users.txt", publicKey, "users.txt.signed." + "seisletras"));
         } else {
-            System.out.println("Failed to retrieve public key from truststore.");
+            System.out.println("KeyStore: " + "Failed to retrieve public key from truststore.");
         }
     }
 }
