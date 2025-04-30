@@ -13,7 +13,7 @@ public class mySharingServer {
         int port;
 
         if (args.length < 1) {
-            System.out.println("Usage: java mySharingServer <port> <mac_password>");
+            System.out.println("SERVER: " + "Usage: java mySharingServer <port> <mac_password>");
             return;
         }
         try {
@@ -54,12 +54,12 @@ public class mySharingServer {
 
             SSLServerSocketFactory ssf = sslContext.getServerSocketFactory();
             SSLServerSocket serverSocket = (SSLServerSocket) ssf.createServerSocket(port);
-            System.out.println("TLS Server is listening on port " + port);
+            System.out.println("SERVER: " + "TLS Server is listening on port " + port);
 
             while (true) {
-                System.out.println("Waiting for a new client...");
+                System.out.println("SERVER: " + "Waiting for a new client...");
                 SSLSocket clientSocket = (SSLSocket) serverSocket.accept();
-                System.out.println("New client connected");
+                System.out.println("SERVER: " + "New client connected");
 
                 ClientHandler clientHandler = new ClientHandler(clientSocket, mac_password);
                 new Thread(clientHandler).start();
@@ -101,48 +101,53 @@ class ClientHandler implements Runnable {
                 MACChecker.updateMAC("./users.txt", mac_password);
                 FileCoordenator fileCoordenator = new FileCoordenator(in, out, inStream, outStream);
                 if(!fileCoordenator.receive_file(".")){
-                    System.out.println("Error receiving certificate");
+                    System.out.println("SERVER: " + "Error receiving certificate");
                     return;
                 }
-                System.out.println("Certificate received");
+                System.out.println("SERVER: " + "Certificate received");
                 
                 // pretty self explanatory: update the truststore with the new user's certificate
                 KeyStoreAndCertificates.updateTrustStore(user_pass[0] + ".cer", user_pass[0], "truststore.jks", "serverkeystore");
                 
                 // send truststore to the client
                 String truststore_action = in.readLine();
-                System.out.println("Truststore action: " + truststore_action);
+                System.out.println("SERVER: " + "Truststore action: " + truststore_action);
                 if(truststore_action.equals("TRUSTSTORE-REQUEST")){ //this shit is necessary cause of lazy development environment
-                    System.out.println("Sending truststore...");
+                    System.out.println("SERVER: " + "Sending truststore...");
                     if(!fileCoordenator.send_file("truststore.jks")){
-                        System.out.println("Error sending truststore");
+                        System.out.println("SERVER: " + "Error sending truststore");
                         return;
                     }
-                    System.out.println("Truststore sent");
+                    System.out.println("SERVER: " + "Truststore sent");
                 }else if(truststore_action.equals("TRUSTSTORE-EXISTS")){
-                    System.out.println("Truststore already exists");
+                    System.out.println("SERVER: " + "Truststore already exists");
                 }else{
-                    System.out.println("Error receiving truststore request");
+                    System.out.println("SERVER: " + "Error receiving truststore request");
                     return;
                 }
 
+                // Creating the workspace of the user on register
+                // finding the workspace number
                 int numberOfWorkspace = 0;
                 String workspace = "workspace";
                 while(Workspaces.findWorkspace(workspace + numberOfWorkspace) != ""){
                     numberOfWorkspace++;
                 }
 
-                // MAC workspace creating
+                // Creating the workspace of the user on register
                 if(Workspaces.create(user_pass[0], workspace + numberOfWorkspace).equals("OK")){
+                    // make random password deu to enunciado lack of specification
                     String key_filename = workspace + numberOfWorkspace + ".key." + user_pass[0];
+                    String workspace_password = WorkspacePasswordManager.generateRandomPassword();
                     String workspacePath = "workspaces/" + Workspaces.findWorkspace(workspace + numberOfWorkspace);
-                    System.out.println("Workspace path: " + workspacePath);
-                    WorkspacePasswordManager.encriptWorkspacePassword(user_pass[0], workspacePath + "/" + key_filename, "default");
-                                    
+                    WorkspacePasswordManager.encriptWorkspacePassword(user_pass[0], workspacePath + "/" + key_filename, workspace_password);
+                    System.out.println("SERVER: " + "Workspace path: " + workspacePath);             
+
+                    
                     // DUE TO THE WAY UPDATE MAC WORKS IT CORRECTS THE MISSING FOLDER MORE CORRECTLY THAN THE CREATE MACKWORKSPACE
                     MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
 
-                    
+                    // delete the temp key file
                     File file = new File(key_filename);
                     file.delete();
                 }
@@ -155,7 +160,7 @@ class ClientHandler implements Runnable {
 
             String message;
             while ((message = in.readLine()) != null) {
-                System.out.println("Message received: " + message);
+                System.out.println("SERVER: " + "Message received: " + message);
                 OperationExecutioner.execute(message, out, in, inStream, outStream, mac_password);
             }
 
@@ -170,7 +175,7 @@ class ClientHandler implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("Client disconnected");
+            System.out.println("SERVER: " + "Client disconnected");
         }
     }
 

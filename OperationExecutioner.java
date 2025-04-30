@@ -83,6 +83,10 @@ public class OperationExecutioner {
             if(WorkspacePasswordManager.encriptWorkspacePassword(username, workspacePath + "/" + key_filename, password)){
                 System.out.println("OP: " + "Workspace password encrypted");
             }
+
+            // delete temp file
+            File file = new File(key_filename);
+            file.delete();
             
             
             // update the MAC for the new user key file
@@ -281,13 +285,37 @@ public class OperationExecutioner {
         // remove files
         FileCoordenator fileCoordenator = new FileCoordenator(input, output, inStream, outStream);
         for (int i = 3; i < parts.length; i++) {
-            System.out.print("OP: " + "File: " + parts[i] + " ");
-            if(fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i])){
-                output.println(parts[i] + ": APAGADO");
-                MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i], password);
-            }else{
-                output.println("O ficheiro " + parts[i] + " não existe no workspace indicado");
+            if(!fileCoordenator.delete_file("workspaces/" + file_path + "/" + parts[i] + ".enc") || !MACChecker.updateMAC("workspaces/" + file_path + "/" + parts[i] + ".enc", password) ){
+                output.println("Erro a apagar: " + parts[i]);
+                System.out.println("OP: " + "Erro a apagar: " + parts[i]);
+                continue;
             }
+            System.out.println("OP: " + parts[i] + ": APAGADO");
+            
+            // find signed file
+            File[] files = new File("workspaces/" + file_path + "/").listFiles();
+            String signed_file = "";
+            for (File file : files) {
+                if (file.getName().contains(parts[i] + ".signed.")) {
+                    signed_file = file.getName();
+                    break;
+                }
+            }
+
+            // delete signed file
+            System.out.println("OP: " + "Signed file: " + signed_file);
+            if(!signed_file.equals("")){
+                if(!fileCoordenator.delete_file("workspaces/" + file_path + "/" + signed_file) || !MACChecker.updateMAC("workspaces/" + file_path + "/" + signed_file, password)){
+                    output.println("Erro a apagar: " + signed_file);
+                    System.out.println("Erro a apagar: " + signed_file);
+                    continue;
+                }
+                System.out.println("OP: " + signed_file + ": APAGADO");
+            }
+
+            output.println(parts[i] + ": APAGADO");
+            // System.out.println("OP: " + parts[i] + ": APAGADO");
+            
         }
     }
 

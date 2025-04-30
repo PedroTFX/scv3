@@ -213,7 +213,7 @@ public class KeyStoreAndCertificates {
                 truststore.store(truststoreOut, truststorePassword.toCharArray());
             }
     
-            System.out.println("KeyStore: " + "Certificate for alias '" + alias + "' added to truststore: " + truststorePath);
+            System.out.println("KEYSTORE: " + "Certificate for alias '" + alias + "' added to truststore: " + truststorePath);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -269,16 +269,16 @@ public class KeyStoreAndCertificates {
         String keystorePassword = username;
 
         // updateTrustStore("defaultUser.cer", "default", "truststore.jks", "serverkeystore");
-        // System.out.println("KeyStore: " + signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
-        // System.out.println("KeyStore: " + verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+        // System.out.println("KEYSTORE: " + signFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
+        // System.out.println("KEYSTORE: " + verifyFile("test.txt", keystorePath, keystorePassword, "mykey", "test.signed." + username));
 
 
-        System.out.println("KeyStore: " + "Verifying with public key from truststore");
+        System.out.println("KEYSTORE: " + "Verifying with public key from truststore");
         PublicKey publicKey = getPublicKeyFromTruststore("truststore.jks", "serverkeystore", "seisletras");
         if (publicKey != null) {
-            System.out.println("KeyStore: " + verifyFileWithPublicKey("users.txt", publicKey, "users.txt.signed." + "seisletras"));
+            System.out.println("KEYSTORE: " + verifyFileWithPublicKey("users.txt", publicKey, "users.txt.signed." + "seisletras"));
         } else {
-            System.out.println("KeyStore: " + "Failed to retrieve public key from truststore.");
+            System.out.println("KEYSTORE: " + "Failed to retrieve public key from truststore.");
         }
     }
 }

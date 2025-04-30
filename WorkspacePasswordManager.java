@@ -31,6 +31,11 @@ public class WorkspacePasswordManager {
         return salt;
     }
 
+    public static String generateRandomPassword() {
+        byte[] salt = generateSalt();
+        return Base64.getEncoder().encodeToString(salt);
+    }
+
     // generate workspace password
     public static SecretKey generateWorkspacePassword(String userPassword, byte[] salt) throws Exception {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
@@ -68,7 +73,7 @@ public class WorkspacePasswordManager {
             try (FileWriter fileWriter = new FileWriter(filename)) {
                 fileWriter.write(encryptedPasswordBase64);
             }
-            System.out.println("WPM: " + "Workspace password encrypted and saved to: " + filename);
+            System.out.println("WORKSPACEPASSWORDMANAGEMENT: " + "Workspace password encrypted and saved to: " + filename);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -183,16 +188,18 @@ public class WorkspacePasswordManager {
 
 
     public static void main(String[] args) throws Exception {
-        byte[] salt_bytes = generateSalt();
-        String salt = Base64.getEncoder().encodeToString(salt_bytes);
-        // String workspace_password = generateWorkspacePassword("password", salt_bytes);
-        System.out.println("WPM: " + salt);
-        // System.out.println("WPM: " + workspace_password);
+        // byte[] salt_bytes = generateSalt();
+        // String salt = Base64.getEncoder().encodeToString(salt_bytes);
+        // // String workspace_password = generateWorkspacePassword("password", salt_bytes);
+        // System.out.println("WORKSPACEPASSWORDMANAGEMENT: " + salt);
+        // // System.out.println("WORKSPACEPASSWORDMANAGEMENT: " + workspace_password);
 
-        System.out.println("WPM: " + encriptWorkspacePassword("seisletras", "workspace0.key.seisletras", "password" + ":" + salt));
-        System.out.println("WPM: " + decriptWorkspacePassword("seisletras", "workspace0.key.seisletras"));
+        // System.out.println("WORKSPACEPASSWORDMANAGEMENT: " + encriptWorkspacePassword("seisletras", "workspace0.key.seisletras", "password" + ":" + salt));
+        // System.out.println("WORKSPACEPASSWORDMANAGEMENT: " + decriptWorkspacePassword("seisletras", "workspace0.key.seisletras"));
 
-        encryptFile("password", "test.txt", "test.txt.enc");
-        decryptFile("password", "test.txt.enc", "test_dec.txt");
+        // encryptFile("password", "test.txt", "test.txt.enc");
+        // decryptFile("password", "test.txt.enc", "test_dec.txt");
+
+        System.out.println(generateRandomPassword());
     }
 }

@@ -135,9 +135,9 @@ public class MACChecker {
         File parentDir = macFile.getParentFile();
         if (parentDir != null && !parentDir.exists()) {
             if (parentDir.mkdirs()) {
-                System.out.println("MAC: " + "Directories created: " + parentDir.getAbsolutePath());
+                System.out.println("MAC: " + "Directories created: " + parentDir.getPath());
             } else {
-                System.out.println("MAC: " + "Failed to create directories: " + parentDir.getAbsolutePath());
+                System.out.println("MAC: " + "Failed to create directories: " + parentDir.getPath());
                 return false;
             }
         }
@@ -145,15 +145,15 @@ public class MACChecker {
         // Create the MAC file if it doesn't exist
         if (!macFile.exists()) {
             if (macFile.createNewFile()) {
-                System.out.println("MAC: " + "MAC file created: " + macFile.getAbsolutePath());
+                System.out.println("MAC: " + "MAC file created: " + macFile.getPath());
             } else {
-                System.out.println("MAC: " + "Failed to create MAC file: " + macFile.getAbsolutePath());
+                System.out.println("MAC: " + "Failed to create MAC file: " + macFile.getPath());
                 return false;
             }
         }
     
         // Write the new MAC to the file
-        System.out.println("MAC: " + "Writing new MAC to file: " + macFile.getAbsolutePath());
+        System.out.println("MAC: " + "Writing new MAC to file: " + macFile.getPath());
         System.out.println("MAC: " + "newMAC: " + newMAC);
         Files.write(macFile.toPath(), newMAC.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         return true;
@@ -166,8 +166,8 @@ public class MACChecker {
 
 
         // Create the MAC file
-        File macFile = new File("macs/" + workspace + "/" + file.split("\\.")[0] + ".mac");
-        return macFile.exists() ? macFile.delete() : true;
+        File macFile = new File("macs/" + workspace + "/" + file + ".mac");
+        return macFile.exists() ? macFile.delete() : false;
     }
 
     public static boolean hasMACChanged(){
