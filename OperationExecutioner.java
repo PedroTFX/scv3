@@ -90,7 +90,7 @@ public class OperationExecutioner {
             
             
             // update the MAC for the new user key file
-            MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
+            MACChecker.updateMAC(workspacePath + "/" + key_filename, mySharingServer.mac_password);
         }
         output.println(result);
     }
@@ -122,7 +122,7 @@ public class OperationExecutioner {
             WorkspacePasswordManager.encriptWorkspacePassword(collaborator, workspacePath + "/" + key_filename, workspace_password);
 
             // update the MAC for the new user key file
-            MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
+            MACChecker.updateMAC(workspacePath + "/" + key_filename, mySharingServer.mac_password);
         }
 
         output.println(result);

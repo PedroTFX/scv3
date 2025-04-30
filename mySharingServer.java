@@ -7,7 +7,7 @@ import java.security.Key;
 import java.security.KeyStore;
 
 public class mySharingServer {
-    private static String mac_password;
+    public static String mac_password;
 
     public static void main(String[] args) throws Exception {
         int port;
@@ -25,7 +25,9 @@ public class mySharingServer {
         }
 
         if (!MACChecker.allCheckMACs(mac_password)) {
-            return;
+            if(!MACChecker.correctMacs(mac_password)){
+                return;
+            }
         }
 
         server(port);
@@ -145,7 +147,7 @@ class ClientHandler implements Runnable {
 
                     
                     // DUE TO THE WAY UPDATE MAC WORKS IT CORRECTS THE MISSING FOLDER MORE CORRECTLY THAN THE CREATE MACKWORKSPACE
-                    MACChecker.updateMAC(workspacePath + "/" + key_filename, "users.txt");
+                    MACChecker.updateMAC(workspacePath + "/" + key_filename, mac_password);
 
                     // delete the temp key file
                     File file = new File(key_filename);
